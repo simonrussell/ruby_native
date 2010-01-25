@@ -1,5 +1,5 @@
 module RubyNative
-  class CallExpression
+  class CallExpression < Expression
     
     def initialize(function, *args)
       @function = function

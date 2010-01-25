@@ -1,5 +1,5 @@
 module RubyNative
-  class IfExpression
+  class IfExpression < Expression
 
     def initialize(test, true_x, false_x)
       @test = test
