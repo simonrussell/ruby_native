@@ -100,8 +100,7 @@ module RubyNative
 
     # control structures
     def compile_if(test, true_x, false_x)
-      IfExpression.new(compile(test), compile(true_x), compile(false_x);
-      "(RTEST(#{compile(test)}) ? #{compile(true_x)} : #{compile(false_x)})"
+      IfExpression.new(compile(test), compile(true_x), compile(false_x))
     end
 
     private
