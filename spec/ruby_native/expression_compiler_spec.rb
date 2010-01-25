@@ -29,7 +29,14 @@ describe RubyNative::ExpressionCompiler do
     s(:self) => 'self',
     s(:if, l('?1'), l('?2'), l('?3'))  => '(RTEST(?1) ? ?2 : ?3)',
     s(:call, l('?1'), :fish, s(:arglist, l('?2'))) => 'rb_funcall(?1, rb_intern("fish"), 1, ?2)',
-    s(:call, l('?1'), :+, s(:arglist, l('?2'))) => %{rb_funcall(?1, '+', 1, ?2)}
+    s(:call, l('?1'), :+, s(:arglist, l('?2'))) => %{rb_funcall(?1, '+', 1, ?2)},
+
+    s(:while, l('?1'), l('?2'), true) => "({\nwhile(RTEST(?1)) ?2;\n\nQnil;\n})",
+    s(:while, l('?1'), l('?2'), false) => "({\ndo {\n?2;\n\n} while(RTEST(?1));\nQnil;\n})",
+
+    s(:until, l('?1'), l('?2'), true) => "({\nwhile(!RTEST(?1)) ?2;\n\nQnil;\n})",
+    s(:until, l('?1'), l('?2'), false) => "({\ndo {\n?2;\n\n} while(!RTEST(?1));\nQnil;\n})",
+
   }.each do |input, output|
     it "should compile #{input.inspect} to #{output.inspect}" do
       input = RubyParser.new.parse(input) if input.is_a?(String)

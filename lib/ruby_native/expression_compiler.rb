@@ -36,6 +36,21 @@ module RubyNative
       SimpleExpression.new('self')
     end
 
+    def compile_while(test, body, test_before, not_test = false)
+      StatementExpression.new(
+        WhileStatement.new(
+          compile(test),
+          ExpressionStatement.new(compile(body)),
+          test_before,
+          not_test
+        )
+      )
+    end
+
+    def compile_until(test, body, test_before)
+      compile_while(test, body, test_before, true)
+    end
+
     def compile_lit(value)
       case value
       when Fixnum

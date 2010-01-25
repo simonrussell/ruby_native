@@ -5,6 +5,7 @@ require 'lib/ruby_native'
 #code = 'puts self.inspect'
 #code = '1 + 1'
 code = '"a" ? "b" : "c"'
+#code = 'while false; puts x; end'
 
 parsed = RubyNative::Reader.from_string(code)
 pp_sexp STDERR, parsed

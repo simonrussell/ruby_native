@@ -29,6 +29,11 @@ for name in %w(
     simple_expression
     call_expression
     if_expression
+    statement_expression
+
+  statement
+    expression_statement
+    while_statement
 )
   require File.join(File.dirname(__FILE__), "ruby_native/#{name}.rb")
 end
