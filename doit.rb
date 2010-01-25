@@ -3,11 +3,12 @@
 MULTIPLE = 1_000_000
 
 def my_method
-  "hello world #{1 + 1} a bit #{2 + 1}"
+#  "hello world #{1 + 1} a bit #{2 + 1}"
 #  1 + 1
+  "a" ? "b" : "c"
 end
 
-require 'benchmark'
+require 'benchmark' if ARGV.first == 'bm'
 
 puts `ruby run.rb > mymodule/mymodule.c`
 
@@ -19,15 +20,18 @@ if $? == 0
   if $? == 0
     require 'mymodule/mymodule'
 
+    if ARGV.first == 'bm'
+      Benchmark.bmbm do |benchmark|
+        benchmark.report 'interpreted' do
+          MULTIPLE.times { my_method }
+        end
 
-    Benchmark.bmbm do |benchmark|
-      benchmark.report 'interpreted' do
-        MULTIPLE.times { my_method }
+        benchmark.report 'compiled' do
+          MULTIPLE.times { Mymodule.run }
+        end
       end
-
-      benchmark.report 'compiled' do
-        MULTIPLE.times { Mymodule.run }
-      end
+    else
+      puts Mymodule.run
     end
   end
 end
