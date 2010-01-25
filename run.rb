@@ -4,8 +4,16 @@ require 'lib/ruby_native'
 #code = '"hello world #{1 + 1} a bit #{2 + 1}"'
 #code = 'puts self.inspect'
 #code = '1 + 1'
-code = '"a" ? "b" : "c"'
+#code = '"a" ? "b" : "c"'
 #code = 'while false; puts x; end'
+
+code = %{
+  if gets == "fish\n"
+    puts 'fishy!'
+  else
+    puts 'happy!'
+  end
+}
 
 parsed = RubyNative::Reader.from_string(code)
 pp_sexp STDERR, parsed

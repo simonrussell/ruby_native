@@ -30,6 +30,7 @@ for name in %w(
     call_expression
     if_expression
     statement_expression
+    grouping_expression
 
   statement
     expression_statement

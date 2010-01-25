@@ -36,6 +36,10 @@ module RubyNative
       SimpleExpression.new('self')
     end
 
+    def compile_block(*expressions)
+      GroupingExpression.new(expressions.map { |x| compile(x) })
+    end
+
     def compile_while(test, body, test_before, not_test = false)
       StatementExpression.new(
         WhileStatement.new(

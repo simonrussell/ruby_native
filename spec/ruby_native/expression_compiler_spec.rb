@@ -37,6 +37,8 @@ describe RubyNative::ExpressionCompiler do
     s(:until, l('?1'), l('?2'), true) => "({\nwhile(!RTEST(?1)) ?2;\n\nQnil;\n})",
     s(:until, l('?1'), l('?2'), false) => "({\ndo {\n?2;\n\n} while(!RTEST(?1));\nQnil;\n})",
 
+    s(:block, l('?1'), l('?2'), l('?3')) => "?1, ?2, ?3",
+
   }.each do |input, output|
     it "should compile #{input.inspect} to #{output.inspect}" do
       input = RubyParser.new.parse(input) if input.is_a?(String)
