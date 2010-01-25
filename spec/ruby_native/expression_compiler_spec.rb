@@ -39,6 +39,12 @@ describe RubyNative::ExpressionCompiler do
 
     s(:block, l('?1'), l('?2'), l('?3')) => "?1, ?2, ?3",
 
+    s(:lit, 1..2) => 'rb_range_new(LONG2FIX(1), LONG2FIX(2), 0)',
+    s(:lit, 1...2) => 'rb_range_new(LONG2FIX(1), LONG2FIX(2), 1)',
+
+    s(:dot2, l('?1'), l('?2')) => 'rb_range_new(?1, ?2, 0)',
+    s(:dot3, l('?1'), l('?2')) => 'rb_range_new(?1, ?2, 1)',
+
   }.each do |input, output|
     it "should compile #{input.inspect} to #{output.inspect}" do
       input = RubyParser.new.parse(input) if input.is_a?(String)

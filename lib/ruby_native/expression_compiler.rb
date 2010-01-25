@@ -63,6 +63,8 @@ module RubyNative
         SimpleExpression.new("rb_str_new2(#{value.inspect})")
       when Symbol
         SimpleExpression.new("ID2SYM(#{compile__intern(value)})")
+      when Range
+        compile__range(s(:lit, value.first), s(:lit, value.last), value.exclude_end?)
       else
         raise "don't know how to compile literal #{value.inspect}"
       end
@@ -115,6 +117,19 @@ module RubyNative
       end
 
       CallExpression.new("rb_funcall", compile(target), compile__intern(method), args.length, args.map { |a| compile(a) })
+    end
+
+    # ranges
+    def compile__range(first, last, exclude_end)
+      CallExpression.new('rb_range_new', compile(first), compile(last), exclude_end ? 1 : 0)
+    end
+
+    def compile_dot2(first, last)
+      compile__range(first, last, false)
+    end
+
+    def compile_dot3(first, last)
+      compile__range(first, last, true)
     end
 
     # control structures
