@@ -8,14 +8,37 @@ require 'lib/ruby_native'
 #code = 'while false; puts x; end'
 
 code = %{
-  puts 1..2
-  puts 'a'...'b'
+#  puts 1..2
+#  puts 'a'...'b'
+  x = 1
+  x
 }
 
 parsed = RubyNative::Reader.from_string(code)
 pp_sexp STDERR, parsed
 
-puts "#include <ruby.h>"
+puts "#include <ruby.h>
+
+#define TO_BOOL(x) ((x) ? Qtrue : Qfalse)
+
+// these are really just aliases, but it looks nicer (could also do more checking?)
+static VALUE _local_get(VALUE scope, VALUE name)
+{
+  return rb_hash_lookup(scope, name);
+}
+
+static VALUE _local_set(VALUE scope, VALUE name, VALUE value)
+{
+  return rb_hash_aset(scope, name, value);
+}
+
+static VALUE _local_defined(VALUE scope, VALUE name)
+{
+  // cut and paste from hash.c, because we don't have access to it
+  return TO_BOOL(st_lookup(RHASH(scope)->tbl, name, 0));
+}  
+
+"
 
 puts RubyNative::FunctionToplevel.new('mymethod', 
   RubyNative::ReturnStatement.new(  

@@ -143,6 +143,15 @@ module RubyNative
       IfExpression.new(compile(test), compile(true_x), compile(false_x))
     end
 
+    # local variables
+    def compile_lvar(name)
+      CallExpression.new('_local_get', 'scope', compile_lit(name))
+    end
+
+    def compile_lasgn(name, value)
+      CallExpression.new('_local_set', 'scope', compile_lit(name), compile(value))
+    end
+
     private
 
     def compile__intern(symbol)

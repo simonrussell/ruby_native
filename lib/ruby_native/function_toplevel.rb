@@ -7,7 +7,7 @@ module RubyNative
     end
 
     def to_s
-      "VALUE #{@name}(VALUE self) {\n  #{@body}}\n"
+      "VALUE #{@name}(VALUE self) {\n  VALUE scope = rb_hash_new();\n  #{@body}}\n"
     end
 
   end
