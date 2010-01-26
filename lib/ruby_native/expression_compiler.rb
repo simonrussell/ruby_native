@@ -104,6 +104,8 @@ module RubyNative
       s(:call, s(:const, :Kernel), :sprintf, s(:arglist, s(:str, literals.join('')), *expressions))
     end
 
+    # calling/iterating
+
     def compile_call(target, method, args)
       check!(method, Symbol)
             
@@ -117,6 +119,10 @@ module RubyNative
       end
 
       CallExpression.new("rb_funcall", compile(target), compile__intern(method), args.length, args.map { |a| compile(a) })
+    end
+
+    def compile_iter(call, blockargs, block_body)
+      raise "not implemented"
     end
 
     # ranges
