@@ -8,11 +8,8 @@ require 'lib/ruby_native'
 #code = 'while false; puts x; end'
 
 code = %{
-  if gets == "fish\n"
-    puts 'fishy!'
-  else
-    puts 'happy!'
-  end
+  puts 1..2
+  puts 'a'...'b'
 }
 
 parsed = RubyNative::Reader.from_string(code)
@@ -20,9 +17,11 @@ pp_sexp STDERR, parsed
 
 puts "#include <ruby.h>"
 
-puts "static VALUE mymethod(VALUE self) {\n  return "
-puts RubyNative::ExpressionCompiler.new.compile(parsed)
-puts ";\n}\n"
+puts RubyNative::FunctionToplevel.new('mymethod', 
+  RubyNative::ReturnStatement.new(  
+    RubyNative::ExpressionCompiler.new.compile(parsed)
+  )
+)
 
 puts %{
 void Init_mymodule(void)
