@@ -22,19 +22,18 @@ def pp_sexp(io, sexp, tab = 0)
 end
 
 for name in %w(
-  reader
-  expression_compiler
-
   expression
-    simple_expression
-    call_expression
-    if_expression
-    statement_expression
-    grouping_expression
+    *_expression
 
   statement
-    expression_statement
-    while_statement
+    *_statement
+
+  toplevel
+    *_toplevel
+
+  *
 )
-  require File.join(File.dirname(__FILE__), "ruby_native/#{name}.rb")
+  for file in Dir.glob(File.join(File.dirname(__FILE__), "ruby_native/#{name}.rb"))
+    require file
+  end
 end
