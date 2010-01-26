@@ -25,6 +25,7 @@ describe RubyNative::ExpressionCompiler do
     s(:str, 'fish') => 'rb_str_new2("fish")',
     s(:lit, :fish) => 'ID2SYM(rb_intern("fish"))',
     s(:lit, :+) => "ID2SYM('+')",
+    s(:lit, :a) => %{ID2SYM(rb_intern("a"))},
 
     s(:self) => 'self',
     s(:if, l('?1'), l('?2'), l('?3'))  => '(RTEST(?1) ? ?2 : ?3)',
@@ -44,6 +45,12 @@ describe RubyNative::ExpressionCompiler do
 
     s(:dot2, l('?1'), l('?2')) => 'rb_range_new(?1, ?2, 0)',
     s(:dot3, l('?1'), l('?2')) => 'rb_range_new(?1, ?2, 1)',
+
+    s(:const, :Kernel) => 'rb_mKernel',
+    s(:const, :Hash) => 'rb_cHash',
+
+    s(:hash, l('?1'), l('?2')) => 'rb_funcall(rb_cHash, rb_intern("[]"), 2, ?1, ?2)',
+    s(:array, l('?1'), l('?2')) => 'rb_ary_new3(2, ?1, ?2)',
 
   }.each do |input, output|
     it "should compile #{input.inspect} to #{output.inspect}" do

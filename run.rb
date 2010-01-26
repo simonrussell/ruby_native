@@ -10,8 +10,10 @@ require 'lib/ruby_native'
 code = %{
 #  puts 1..2
 #  puts 'a'...'b'
-  x = 1
-  x
+#  x = 1
+#  x
+  puts({ :a => 1, :b => 2 })
+  puts [1,2,3]
 }
 
 parsed = RubyNative::Reader.from_string(code)

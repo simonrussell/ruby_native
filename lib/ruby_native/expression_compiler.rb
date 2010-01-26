@@ -9,6 +9,10 @@ module RubyNative
       @block_id += 1
     end
 
+    def bulk_compile(sexps)
+      sexps.map { |sexp| compile(sexp) }
+    end
+
     def compile(sexp)
       return compile_nil if sexp.nil?
 
@@ -74,11 +78,25 @@ module RubyNative
 
     def compile_const(name)
       case name
+      # modules
       when :Kernel
         SimpleExpression.new("rb_m#{name}")
+      
+      # classes
+      when :Object, :Array, :Hash, :Fixnum, :Float
+        SimpleExpression.new("rb_c#{name}")
+
       else
         raise "don't know how to compile const #{name}"
       end
+    end
+
+    def transform_hash(*keys_values)
+      s(:call, s(:const, :Hash), :[], s(:arglist, *keys_values))
+    end
+
+    def compile_array(*values)
+      CallExpression.new('rb_ary_new3', values.length, bulk_compile(values))
     end
 
     def compile_gvar(name)
@@ -118,7 +136,7 @@ module RubyNative
         args = []
       end
 
-      CallExpression.new("rb_funcall", compile(target), compile__intern(method), args.length, args.map { |a| compile(a) })
+      CallExpression.new("rb_funcall", compile(target), compile__intern(method), args.length, bulk_compile(args))
     end
 
     def compile_iter(call, blockargs, block_body)
@@ -157,9 +175,9 @@ module RubyNative
     def compile__intern(symbol)
       symbol = symbol.to_s
   
-      # the ID of one-character symbols is the ASCII value of the character
-      if symbol.length == 1
-        SimpleExpression.new("'#{symbol}'")    # TODO should escape
+      # the ID of some one-character symbols is the ASCII value of the character
+      if symbol.length == 1 && "+-/*".include?(symbol)
+        SimpleExpression.new("'#{symbol}'")
       else
         CallExpression.new('rb_intern', symbol.inspect)
       end
