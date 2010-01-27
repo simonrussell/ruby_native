@@ -1,35 +1,14 @@
 #!/usr/bin/env ruby
 require 'lib/ruby_native'
 
-#code = '"hello world #{1 + 1} a bit #{2 + 1}"'
-#code = 'puts self.inspect'
-#code = '1 + 1'
-#code = '"a" ? "b" : "c"'
-#code = 'while false; puts x; end'
-
 code = %{
-#  puts 1..2
-#  puts 'a'...'b'
-#  x = 1
-#  x
-
-  def mymethod3(name)
-    puts "howza!"
-    puts "**** inside"
-    puts self.inspect
-    puts name.inspect
-    puts "**** outside"
-
-    "hello " + name
+  class X
+    def mymethod
+      puts "hello!"
+    end
   end
 
-  x = [1,2,3]
-  puts x.inspect
-  puts({ :a => 1, :b => 2 }.inspect)
-  puts [1,2,3]
-  puts self
-  puts mymethod3('simon')
-  12
+  X.new.mymethod
 }
 
 parsed = RubyNative::Reader.from_string(code)

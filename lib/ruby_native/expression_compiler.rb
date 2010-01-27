@@ -88,7 +88,7 @@ module RubyNative
         SimpleExpression.new("rb_c#{name}")
 
       else
-        raise "don't know how to compile const #{name}"
+        CallExpression.new('rb_const_get', CallExpression.new('CLASS_OF', compile_self), compile__intern(name))
       end
     end
 
@@ -201,7 +201,23 @@ module RubyNative
       CallExpression.new('_local_set', 'scope', compile_lit(name), compile(value))
     end
 
+    # instance variables
+    
+
     # definitions
+    def compile_class(name, parent, body)
+      parent ||= s(:const, :Object)
+
+      CallExpression.new(
+        @unit.anonymous_block([], body),
+        CallExpression.new('rb_define_class_under',
+          CallExpression.new('CLASS_OF', compile_self),          
+          name.to_s.inspect,
+          compile(parent)
+        )
+      )
+    end
+
     def compile_defn(name, args, body)
       args = args.sexp_body
 
@@ -209,15 +225,20 @@ module RubyNative
       raise "can't compile varargs yet" if args.any? { |a| a.to_s =~ /^\*/ }
       raise "can't compile default args yet" if args.last.is_a?(Sexp)
 
-      CallExpression.new('rb_define_method', 
-        CallExpression.new('CLASS_OF', compile_self),
-        name.to_s.inspect,   # TODO escape properly
-        @unit.anonymous_block(args, body),     # anonymous, because we don't actually know what class we're in, might be clashes
-        args.length
+      GroupingExpression.new(
+        CallExpression.new('rb_define_method', 
+          compile_self,
+          name.to_s.inspect,   # TODO escape properly
+          @unit.anonymous_block(args, body),     # anonymous, because we don't actually know what class we're in, might be clashes
+          args.length
+        ),
+        compile_nil
       )
     end
 
-    def compile_scope(body)
+    def compile_scope(body = nil)
+      return compile_nil unless body
+
       ScopeExpression.new(compile(body))
     end
 
