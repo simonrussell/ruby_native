@@ -12,14 +12,26 @@ code = %{
 #  puts 'a'...'b'
 #  x = 1
 #  x
-  puts({ :a => 1, :b => 2 })
+
+  def mymethod3
+    puts "howza!"
+    "hello ruby world!"
+  end
+
+  x = [1,2,3]
+  puts x.inspect
+  puts({ :a => 1, :b => 2 }.inspect)
   puts [1,2,3]
+  puts self
+  puts mymethod3
+  12
 }
 
 parsed = RubyNative::Reader.from_string(code)
 pp_sexp STDERR, parsed
 
-puts "#include <ruby.h>
+puts <<EOC
+#include <ruby.h>
 
 #define TO_BOOL(x) ((x) ? Qtrue : Qfalse)
 
@@ -38,23 +50,23 @@ static VALUE _local_defined(VALUE scope, VALUE name)
 {
   // cut and paste from hash.c, because we don't have access to it
   return TO_BOOL(st_lookup(RHASH(scope)->tbl, name, 0));
-}  
+}
+EOC
 
-"
+unit = RubyNative::UnitToplevel.new
+unit.scoped_block('file_scope', parsed)
+puts unit
 
-puts RubyNative::FunctionToplevel.new('mymethod', 
-  RubyNative::ReturnStatement.new(  
-    RubyNative::ExpressionCompiler.new.compile(parsed)
-  )
-)
+puts <<EOC
+static VALUE bootstrap(VALUE self, VALUE real_self)
+{
+  return file_scope(real_self);
+}
 
-puts %{
 void Init_mymodule(void)
 {
   VALUE module = rb_define_module("Mymodule");
 
-  rb_define_module_function(module, "run", mymethod, 0);
+  rb_define_module_function(module, "bootstrap", bootstrap, 1);
 }
-}
-
-
+EOC

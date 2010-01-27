@@ -5,7 +5,7 @@ MULTIPLE = 1_000_000
 def my_method
 #  "hello world #{1 + 1} a bit #{2 + 1}"
 #  1 + 1
-  "a" ? "b" : "c"
+#  "a" ? "b" : "c"
 end
 
 require 'benchmark' if ARGV.first == 'bm'
@@ -31,7 +31,7 @@ if $? == 0
         end
       end
     else
-      puts Mymodule.run
+      puts Mymodule.bootstrap(self)
     end
   end
 end

@@ -11,7 +11,7 @@ end
 describe RubyNative::ExpressionCompiler do
 
   subject do
-    RubyNative::ExpressionCompiler.new
+    RubyNative::ExpressionCompiler.new(RubyNative::UnitToplevel.new)
   end
 
   {
@@ -38,7 +38,7 @@ describe RubyNative::ExpressionCompiler do
     s(:until, l('?1'), l('?2'), true) => "({\nwhile(!RTEST(?1)) ?2;\n\nQnil;\n})",
     s(:until, l('?1'), l('?2'), false) => "({\ndo {\n?2;\n\n} while(!RTEST(?1));\nQnil;\n})",
 
-    s(:block, l('?1'), l('?2'), l('?3')) => "?1, ?2, ?3",
+    s(:block, l('?1'), l('?2'), l('?3')) => "?1,\n?2,\n?3",
 
     s(:lit, 1..2) => 'rb_range_new(LONG2FIX(1), LONG2FIX(2), 0)',
     s(:lit, 1...2) => 'rb_range_new(LONG2FIX(1), LONG2FIX(2), 1)',

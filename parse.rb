@@ -4,4 +4,7 @@ require 'lib/ruby_native'
 parsed = RubyParser.new.parse(ARGV.join(' '))
 pp_sexp STDOUT, parsed
 puts "-------------------------"
-puts RubyNative::ExpressionCompiler.new.compile(parsed)
+
+unit = RubyNative::UnitToplevel.new
+unit.scoped_block('zzzzzz', parsed)
+puts unit

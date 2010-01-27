@@ -1,12 +1,8 @@
 module RubyNative
   class ExpressionCompiler
     
-    def initialize
-      @block_id = 0
-    end
-
-    def block_id!
-      @block_id += 1
+    def initialize(unit)
+      @unit = unit
     end
 
     def bulk_compile(sexps)
@@ -203,6 +199,22 @@ module RubyNative
 
     def compile_lasgn(name, value)
       CallExpression.new('_local_set', 'scope', compile_lit(name), compile(value))
+    end
+
+    # definitions
+    def compile_defn(name, args, body)
+      raise "can't compile args yet" unless args.sexp_body.empty?
+
+      CallExpression.new('rb_define_method', 
+        CallExpression.new('CLASS_OF', compile_self),
+        name.to_s.inspect,   # TODO escape properly
+        @unit.anonymous_block(body),     # anonymous, because we don't actually know what class we're in, might be clashes
+        0
+      )
+    end
+
+    def compile_scope(body)
+      ScopeExpression.new(compile(body))
     end
 
     private
