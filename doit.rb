@@ -6,16 +6,23 @@ def fib(n)
   n < 2 ? n : fib(n-1) + fib(n-2)
 end
 
-#def fib(n)
-#  curr = 0
-#  succ = 1
+def fib2(n)
+  curr = 0
+  succ = 1
 
-#  n.times do |i|
-#    curr, succ = succ, curr + succ
-#  end
+  i = 0
+  while i < n
+    n_curr = succ
+    n_succ = curr + succ
+    
+    curr = n_curr
+    succ = n_succ
 
-#  return curr
-#end
+    i += 1
+  end
+
+  curr
+end
 
 require 'benchmark' if ARGV.first == 'bm'
 
@@ -34,16 +41,16 @@ if $? == 0
 
       Benchmark.bmbm do |benchmark|
         benchmark.report 'interpreted' do
-          MULTIPLE.times { fib(32) }
+          MULTIPLE.times { fib2(100_000) }
         end
 
         benchmark.report 'compiled' do
-          MULTIPLE.times { compiled_fib(32) }
+          MULTIPLE.times { compiled_fib2(100_000) }
         end
       end
     else
       Mymodule.bootstrap(self)
-      puts compiled_fib(30)
+      puts compiled_fib2(40)
     end
   end
 end

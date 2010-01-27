@@ -5,6 +5,25 @@ code = %{
   def compiled_fib(n)
     n < 2 ? n : compiled_fib(n-1) + compiled_fib(n-2)
   end
+
+  def compiled_fib2(n)
+    curr = 0
+    succ = 1
+
+    i = 0
+    while i < n
+      n_curr = succ
+      n_succ = curr + succ
+      
+      curr = n_curr
+      succ = n_succ
+
+      i += 1
+    end
+
+    curr
+  end
+
 }
 
 parsed = RubyNative::Reader.from_string(code)
