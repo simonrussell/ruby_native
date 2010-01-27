@@ -6,6 +6,17 @@ def fib(n)
   n < 2 ? n : fib(n-1) + fib(n-2)
 end
 
+#def fib(n)
+#  curr = 0
+#  succ = 1
+
+#  n.times do |i|
+#    curr, succ = succ, curr + succ
+#  end
+
+#  return curr
+#end
+
 require 'benchmark' if ARGV.first == 'bm'
 
 puts `ruby run.rb > mymodule/mymodule.c`

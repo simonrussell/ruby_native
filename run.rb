@@ -3,7 +3,7 @@ require 'lib/ruby_native'
 
 code = %{
   def compiled_fib(n)
-    n < 2 ? n : fib(n-1) + fib(n-2)
+    n < 2 ? n : compiled_fib(n-1) + compiled_fib(n-2)
   end
 }
 
@@ -19,23 +19,52 @@ puts <<EOC
 // these are really just aliases, but it looks nicer (could also do more checking?)
 static VALUE _local_alloc()
 {
-  return rb_hash_new();
+  return rb_ary_new2(8);
 }
 
 static VALUE _local_get(VALUE scope, ID name)
 {
-  return rb_hash_lookup(scope, ID2SYM(name));
+  VALUE *i, *end, search_for;
+
+  Check_Type(scope, T_ARRAY);
+  end = RARRAY(scope)->ptr + RARRAY(scope)->len;
+  search_for = ID2SYM(name);
+
+  for (i = RARRAY(scope)->ptr; i < end; i += 2)
+  {
+    if (*i == search_for)
+      return *(i + 1);
+  }
+
+  return Qundef;
 }
 
 static VALUE _local_set(VALUE scope, ID name, VALUE value)
 {
-  return rb_hash_aset(scope, ID2SYM(name), value);
+  VALUE *i, *end, search_for;
+
+  Check_Type(scope, T_ARRAY);
+  end = RARRAY(scope)->ptr + RARRAY(scope)->len;
+  search_for = ID2SYM(name);
+
+
+  for (i = RARRAY(scope)->ptr; i < end; i += 2)
+  {
+    if (*i == search_for)
+      return (*(i + 1) = value);
+  }
+
+  rb_ary_push(scope, search_for);
+  rb_ary_push(scope, value);
+
+  return value;
 }
 
 static VALUE _local_defined(VALUE scope, VALUE name)
 {
   // cut and paste from hash.c, because we don't have access to it
-  return TO_BOOL(st_lookup(RHASH(scope)->tbl, name, 0));
+  //return TO_BOOL(st_lookup(RHASH(scope)->tbl, name, 0));
+  return Qundef;
 }
 
 #define RN_OPTIMIZE
