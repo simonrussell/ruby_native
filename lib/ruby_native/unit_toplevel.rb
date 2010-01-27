@@ -49,5 +49,17 @@ module RubyNative
       }\n}\n\n" + @blocks.join("\n")
     end
 
+    def compile__intern(sym)
+      sym = sym.to_s
+  
+      # the ID of some one-character symbols is the ASCII value of the character
+      if sym.length == 1 && "+-/*<>=".include?(sym)
+        SimpleExpression.new("'#{sym}'")
+      else
+#        CallExpression.new('rb_intern', symbol.inspect)
+        CallExpression.new('SYM', symbol(sym), sym.inspect)
+      end
+    end
+
   end
 end

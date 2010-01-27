@@ -67,7 +67,7 @@ module RubyNative
       when String
         SimpleExpression.new("rb_str_new2(#{value.inspect})")
       when Symbol
-        SimpleExpression.new("ID2SYM(#{compile__intern(value)})")
+        SimpleExpression.new("ID2SYM(#{@unit.compile__intern(value)})")
       when Range
         compile__range(s(:lit, value.first), s(:lit, value.last), value.exclude_end?)
       else
@@ -88,7 +88,7 @@ module RubyNative
         SimpleExpression.new("rb_c#{name}")
 
       else
-        CallExpression.new('rb_const_get', CallExpression.new('CLASS_OF', compile_self), compile__intern(name))
+        CallExpression.new('rb_const_get', CallExpression.new('CLASS_OF', compile_self), @unit.compile__intern(name))
       end
     end
 
@@ -138,9 +138,9 @@ module RubyNative
       end
 
       if args.length == 1
-        CallExpression.new('fast_funcall1', compile(target), compile__intern(method), *bulk_compile(args))
+        CallExpression.new('fast_funcall1', compile(target), @unit.compile__intern(method), *bulk_compile(args))
       else
-        CallExpression.new("rb_funcall", compile(target), compile__intern(method), args.length, bulk_compile(args))
+        CallExpression.new("rb_funcall", compile(target), @unit.compile__intern(method), args.length, bulk_compile(args))
       end
     end
 
@@ -202,11 +202,11 @@ module RubyNative
 
     # local variables
     def compile_lvar(name)
-      CallExpression.new('_local_get', 'scope', compile__intern(name))
+      CallExpression.new('_local_get', 'scope', @unit.compile__intern(name))
     end
 
     def compile_lasgn(name, value)
-      CallExpression.new('_local_set', 'scope', compile__intern(name), compile(value))
+      CallExpression.new('_local_set', 'scope', @unit.compile__intern(name), compile(value))
     end
 
     # definitions
@@ -248,18 +248,6 @@ module RubyNative
     end
 
     private
-
-    def compile__intern(symbol)
-      symbol = symbol.to_s
-  
-      # the ID of some one-character symbols is the ASCII value of the character
-      if symbol.length == 1 && "+-/*<>=".include?(symbol)
-        SimpleExpression.new("'#{symbol}'")
-      else
-#        CallExpression.new('rb_intern', symbol.inspect)
-        CallExpression.new('SYM', @unit.symbol(symbol), symbol.inspect)
-      end
-    end
 
     def check!(value, against)
       raise "#{value} must match #{against}" unless against === value
