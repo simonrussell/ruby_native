@@ -202,11 +202,11 @@ module RubyNative
 
     # local variables
     def compile_lvar(name)
-      CallExpression.new('_local_get', 'scope', compile_lit(name))
+      CallExpression.new('_local_get', 'scope', compile__intern(name))
     end
 
     def compile_lasgn(name, value)
-      CallExpression.new('_local_set', 'scope', compile_lit(name), compile(value))
+      CallExpression.new('_local_set', 'scope', compile__intern(name), compile(value))
     end
 
     # definitions
@@ -256,7 +256,8 @@ module RubyNative
       if symbol.length == 1 && "+-/*<>=".include?(symbol)
         SimpleExpression.new("'#{symbol}'")
       else
-        CallExpression.new('rb_intern', symbol.inspect)
+#        CallExpression.new('rb_intern', symbol.inspect)
+        CallExpression.new('SYM', @unit.symbol(symbol), symbol.inspect)
       end
     end
 

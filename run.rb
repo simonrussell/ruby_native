@@ -14,16 +14,17 @@ puts <<EOC
 #include <ruby.h>
 
 #define TO_BOOL(x) ((x) ? Qtrue : Qfalse)
+#define SYM(key, name)  (_symbols[key])
 
 // these are really just aliases, but it looks nicer (could also do more checking?)
-static VALUE _local_get(VALUE scope, VALUE name)
+static VALUE _local_get(VALUE scope, ID name)
 {
-  return rb_hash_lookup(scope, name);
+  return rb_hash_lookup(scope, ID2SYM(name));
 }
 
-static VALUE _local_set(VALUE scope, VALUE name, VALUE value)
+static VALUE _local_set(VALUE scope, ID name, VALUE value)
 {
-  return rb_hash_aset(scope, name, value);
+  return rb_hash_aset(scope, ID2SYM(name), value);
 }
 
 static VALUE _local_defined(VALUE scope, VALUE name)
@@ -45,8 +46,8 @@ static VALUE fast_funcall1(VALUE target, ID method, VALUE arg)
     
     switch(method)
     {
-      case '+':   return LONG2NUM(a + b);
-      case '-':   return LONG2NUM(a - b);
+//      case '+':   return LONG2NUM(a + b);
+//      case '-':   return LONG2NUM(a - b);
       case '<':   return TO_BOOL(a < b);
       case '>':   return TO_BOOL(a > b);
     }
@@ -71,7 +72,11 @@ static VALUE bootstrap(VALUE self, VALUE real_self)
 
 void Init_mymodule(void)
 {
-  VALUE module = rb_define_module("Mymodule");
+  VALUE module;
+  
+  setup_symbols();
+
+  module = rb_define_module("Mymodule");
 
   rb_define_module_function(module, "bootstrap", bootstrap, 1);
 }

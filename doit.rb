@@ -23,15 +23,16 @@ if $? == 0
 
       Benchmark.bmbm do |benchmark|
         benchmark.report 'interpreted' do
-          MULTIPLE.times { fib(30) }
+          MULTIPLE.times { fib(32) }
         end
 
         benchmark.report 'compiled' do
-          MULTIPLE.times { compiled_fib(30) }
+          MULTIPLE.times { compiled_fib(32) }
         end
       end
     else
-      puts Mymodule.bootstrap(self)
+      Mymodule.bootstrap(self)
+      puts compiled_fib(30)
     end
   end
 end
