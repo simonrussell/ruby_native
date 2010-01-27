@@ -137,7 +137,11 @@ module RubyNative
         args = []
       end
 
-      CallExpression.new("rb_funcall", compile(target), compile__intern(method), args.length, bulk_compile(args))
+      if args.length == 1
+        CallExpression.new('fast_funcall1', compile(target), compile__intern(method), *bulk_compile(args))
+      else
+        CallExpression.new("rb_funcall", compile(target), compile__intern(method), args.length, bulk_compile(args))
+      end
     end
 
     def compile_iter(call, blockargs, block_body)
@@ -158,6 +162,10 @@ module RubyNative
     end
 
     # control structures
+    def compile_return(x)
+      StatementExpression.new(ReturnStatement.new(compile(x)))  
+    end
+
     def compile_if(test, true_x, false_x)
       IfExpression.new(compile(test), compile(true_x), compile(false_x))
     end
@@ -201,9 +209,6 @@ module RubyNative
       CallExpression.new('_local_set', 'scope', compile_lit(name), compile(value))
     end
 
-    # instance variables
-    
-
     # definitions
     def compile_class(name, parent, body)
       parent ||= s(:const, :Object)
@@ -227,7 +232,7 @@ module RubyNative
 
       GroupingExpression.new(
         CallExpression.new('rb_define_method', 
-          compile_self,
+          SimpleExpression.new("(TYPE(self) == T_CLASS ? self : CLASS_OF(self))"),
           name.to_s.inspect,   # TODO escape properly
           @unit.anonymous_block(args, body),     # anonymous, because we don't actually know what class we're in, might be clashes
           args.length
@@ -248,7 +253,7 @@ module RubyNative
       symbol = symbol.to_s
   
       # the ID of some one-character symbols is the ASCII value of the character
-      if symbol.length == 1 && "+-/*".include?(symbol)
+      if symbol.length == 1 && "+-/*<>=".include?(symbol)
         SimpleExpression.new("'#{symbol}'")
       else
         CallExpression.new('rb_intern', symbol.inspect)

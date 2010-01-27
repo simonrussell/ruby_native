@@ -10,6 +10,8 @@ def puts_tabbed(io, tab, s)
 end
 
 def pp_sexp(io, sexp, tab = 0)
+  return if sexp.nil?
+
   puts_tabbed io, tab, "> #{sexp.sexp_type.to_s}"
   
   sexp.sexp_body.each do |b|

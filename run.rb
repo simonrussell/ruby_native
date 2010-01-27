@@ -2,13 +2,9 @@
 require 'lib/ruby_native'
 
 code = %{
-  class X
-    def mymethod
-      puts "hello!"
-    end
+  def compiled_fib(n)
+    n < 2 ? n : fib(n-1) + fib(n-2)
   end
-
-  X.new.mymethod
 }
 
 parsed = RubyNative::Reader.from_string(code)
@@ -35,6 +31,32 @@ static VALUE _local_defined(VALUE scope, VALUE name)
   // cut and paste from hash.c, because we don't have access to it
   return TO_BOOL(st_lookup(RHASH(scope)->tbl, name, 0));
 }
+
+#define RN_OPTIMIZE
+
+static VALUE fast_funcall1(VALUE target, ID method, VALUE arg)
+{
+#ifdef RN_OPTIMIZE
+  // Just as an example
+  if (FIXNUM_P(target) && FIXNUM_P(arg))
+  {
+    long a = FIX2LONG(target);
+    long b = FIX2LONG(arg);
+    
+    switch(method)
+    {
+      case '+':   return LONG2NUM(a + b);
+      case '-':   return LONG2NUM(a - b);
+      case '<':   return TO_BOOL(a < b);
+      case '>':   return TO_BOOL(a > b);
+    }
+  }    
+#endif
+
+  // just do the work  
+  return rb_funcall2(target, method, 1, &arg);
+}
+
 EOC
 
 unit = RubyNative::UnitToplevel.new

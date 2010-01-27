@@ -1,11 +1,9 @@
 #!/usr/bin/env ruby
 
-MULTIPLE = 1_000_000
+MULTIPLE = 1 #1_000_000
 
-def my_method
-#  "hello world #{1 + 1} a bit #{2 + 1}"
-#  1 + 1
-#  "a" ? "b" : "c"
+def fib(n)
+  n < 2 ? n : fib(n-1) + fib(n-2)
 end
 
 require 'benchmark' if ARGV.first == 'bm'
@@ -21,13 +19,15 @@ if $? == 0
     require 'mymodule/mymodule'
 
     if ARGV.first == 'bm'
+      Mymodule.bootstrap(self)
+
       Benchmark.bmbm do |benchmark|
         benchmark.report 'interpreted' do
-          MULTIPLE.times { my_method }
+          MULTIPLE.times { fib(30) }
         end
 
         benchmark.report 'compiled' do
-          MULTIPLE.times { Mymodule.run }
+          MULTIPLE.times { compiled_fib(30) }
         end
       end
     else
