@@ -15,17 +15,17 @@ module RubyNative
       @expression_compiler.compile(sexp)
     end
 
-    def scoped_block(name, sexp)
-      block(name, Sexp.new(:scope, sexp))
+    def scoped_block(name, args, sexp)
+      block(name, args, Sexp.new(:scope, sexp))
     end
 
-    def block(name, sexp)
-      @blocks << FunctionToplevel.new(name, compile(sexp))
+    def block(name, args, sexp)
+      @blocks << FunctionToplevel.new(name, args, compile(sexp))
       name
     end
 
-    def anonymous_block(sexp)
-      block("rn_anon_#{block_id!}", sexp)
+    def anonymous_block(args, sexp)
+      block("rn_anon_#{block_id!}", args, sexp)
     end
 
     def to_s

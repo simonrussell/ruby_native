@@ -203,13 +203,17 @@ module RubyNative
 
     # definitions
     def compile_defn(name, args, body)
-      raise "can't compile args yet" unless args.sexp_body.empty?
+      args = args.sexp_body
+
+      raise "can't compile block arg" if args.any? { |a| a.to_s =~ /^&/ }
+      raise "can't compile varargs yet" if args.any? { |a| a.to_s =~ /^\*/ }
+      raise "can't compile default args yet" if args.last.is_a?(Sexp)
 
       CallExpression.new('rb_define_method', 
         CallExpression.new('CLASS_OF', compile_self),
         name.to_s.inspect,   # TODO escape properly
-        @unit.anonymous_block(body),     # anonymous, because we don't actually know what class we're in, might be clashes
-        0
+        @unit.anonymous_block(args, body),     # anonymous, because we don't actually know what class we're in, might be clashes
+        args.length
       )
     end
 

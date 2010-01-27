@@ -13,9 +13,14 @@ code = %{
 #  x = 1
 #  x
 
-  def mymethod3
+  def mymethod3(name)
     puts "howza!"
-    "hello ruby world!"
+    puts "**** inside"
+    puts self.inspect
+    puts name.inspect
+    puts "**** outside"
+
+    "hello " + name
   end
 
   x = [1,2,3]
@@ -23,7 +28,7 @@ code = %{
   puts({ :a => 1, :b => 2 }.inspect)
   puts [1,2,3]
   puts self
-  puts mymethod3
+  puts mymethod3('simon')
   12
 }
 
@@ -54,7 +59,7 @@ static VALUE _local_defined(VALUE scope, VALUE name)
 EOC
 
 unit = RubyNative::UnitToplevel.new
-unit.scoped_block('file_scope', parsed)
+unit.scoped_block('file_scope', [], parsed)
 puts unit
 
 puts <<EOC

@@ -6,5 +6,5 @@ pp_sexp STDOUT, parsed
 puts "-------------------------"
 
 unit = RubyNative::UnitToplevel.new
-unit.scoped_block('zzzzzz', parsed)
+unit.scoped_block('zzzzzz', [], parsed)
 puts unit
