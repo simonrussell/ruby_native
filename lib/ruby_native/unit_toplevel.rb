@@ -34,12 +34,17 @@ module RubyNative
     def block(name, args, body_expression)
       body = compile(body_expression)
 
-      if args.empty?
-        # nothing
-      elsif body.is_a?(ScopeExpression)      # inject it in
-        body = ScopeExpression.new(body.body, args)
+      args_scopers = compile(
+        s(:block, 
+          s(:lasgn, :self, s(:c_literal, 'self')),
+          *args.map { |a| s(:lasgn, a, s(:c_literal, a.to_s)) }
+        )
+      )
+
+      if body.is_a?(ScopeExpression)      # inject it in
+        body = ScopeExpression.new(body.body, args, args_scopers)
       else
-        body = ScopeExpression.new(body, args)
+        body = ScopeExpression.new(body, args, args_scopers)
       end
 
       @blocks << FunctionToplevel.new(name, body)
