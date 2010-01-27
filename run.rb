@@ -17,6 +17,11 @@ puts <<EOC
 #define SYM(key, name)  (_symbols[key])
 
 // these are really just aliases, but it looks nicer (could also do more checking?)
+static VALUE _local_alloc()
+{
+  return rb_hash_new();
+}
+
 static VALUE _local_get(VALUE scope, ID name)
 {
   return rb_hash_lookup(scope, ID2SYM(name));

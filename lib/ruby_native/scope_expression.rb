@@ -13,7 +13,7 @@ module RubyNative
         ExpressionStatement.new(CallExpression.new('_local_set', 'scope', CallExpression.new('rb_intern', a.to_s.inspect), a))
       end.join('')
 
-      "({\n  VALUE scope = rb_hash_new();\n#{arg_setup}#{@body};\n})"
+      "({\n  VALUE scope = _local_alloc();\n#{arg_setup}#{@body};\n})"
     end
 
   end
