@@ -1,7 +1,7 @@
 module RubyNative
   class FunctionToplevel
 
-    def initialize(name, args, body_expression)
+    def initialize(name, body_expression)
       raise "body must be expression" unless body_expression.kind_of?(Expression)
 
       @name = name

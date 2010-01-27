@@ -42,7 +42,7 @@ module RubyNative
         body = ScopeExpression.new(body, args)
       end
 
-      @blocks << FunctionToplevel.new(name, args, body)
+      @blocks << FunctionToplevel.new(name, body)
       name
     end
 
