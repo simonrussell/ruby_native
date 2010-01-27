@@ -1,12 +1,13 @@
 module RubyNative
   class ExpressionStatement
     
-    def initialize(expression)
+    def initialize(expression, prefix = nil)
       @expression = expression
+      @prefix = prefix
     end
 
     def to_s
-      "#{@expression};\n"
+      "#{@prefix}#{' ' if @prefix}#{@expression};\n"
     end
 
   end

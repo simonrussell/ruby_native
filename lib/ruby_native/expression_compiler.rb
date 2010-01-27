@@ -46,11 +46,16 @@ module RubyNative
 
     def compile_while(test, body, test_before, not_test = false)
       StatementExpression.new(
-        WhileStatement.new(
-          compile(test),
-          ExpressionStatement.new(compile(body)),
-          test_before,
-          not_test
+        SequenceStatement.new(
+          WhileStatement.new(
+            compile(test),
+            ExpressionStatement.new(compile(body)),
+            test_before,
+            not_test
+          ),
+          ExpressionStatement.new(
+            compile_nil
+          )
         )
       )
     end
@@ -159,6 +164,36 @@ module RubyNative
     # control structures
     def compile_if(test, true_x, false_x)
       IfExpression.new(compile(test), compile(true_x), compile(false_x))
+    end
+
+    def compile_and(left, right)
+      StatementExpression.new(
+        SequenceStatement.new(
+          ExpressionStatement.new(compile(left), 'VALUE x ='),
+          ExpressionStatement.new(
+            IfExpression.new(
+              compile_c_literal('x'),
+              compile(right),
+              compile_c_literal('x')
+            )
+          )
+        )
+      )
+    end
+
+    def compile_or(left, right)
+      StatementExpression.new(
+        SequenceStatement.new(
+          ExpressionStatement.new(compile(left), 'VALUE x ='),
+          ExpressionStatement.new(
+            IfExpression.new(
+              compile_c_literal('x'),
+              compile_c_literal('x'),
+              compile(right)
+            )
+          )
+        )
+      )
     end
 
     # local variables

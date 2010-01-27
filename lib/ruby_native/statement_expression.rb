@@ -7,7 +7,7 @@ module RubyNative
 
     # TODO gcc only!
     def to_s
-      "({\n#{@statement}\nQnil;\n})"
+      "({\n#{@statement}})"
     end
 
   end

@@ -10,9 +10,9 @@ module RubyNative
 
     def to_s
       unless @test_before
-        "do {\n#{@body}\n} while(#{test_expression});"    # TODO this seems to be buggy?
+        "do {\n#{@body}\n} while(#{test_expression});\n"    # TODO this seems to be buggy?
       else
-        "while(#{test_expression}) #{@body}"
+        "while(#{test_expression}) #{@body}\n"
       end
     end
 

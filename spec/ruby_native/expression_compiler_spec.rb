@@ -52,6 +52,9 @@ describe RubyNative::ExpressionCompiler do
     s(:hash, l('?1'), l('?2')) => 'rb_funcall(rb_cHash, rb_intern("[]"), 2, ?1, ?2)',
     s(:array, l('?1'), l('?2')) => 'rb_ary_new3(2, ?1, ?2)',
 
+    s(:and, l('?1'), l('?2')) => "({\nVALUE x = ?1;\n(RTEST(x) ? ?2 : x);\n})",
+    s(:or, l('?1'), l('?2')) => "({\nVALUE x = ?1;\n(RTEST(x) ? x : ?2);\n})",
+
   }.each do |input, output|
     it "should compile #{input.inspect} to #{output.inspect}" do
       input = RubyParser.new.parse(input) if input.is_a?(String)
