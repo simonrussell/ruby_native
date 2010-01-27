@@ -20,7 +20,7 @@ module RubyNative
     end
 
     def block(name, sexp)
-      @blocks << FunctionToplevel.new(name, ReturnStatement.new(compile(sexp)))
+      @blocks << FunctionToplevel.new(name, compile(sexp))
       name
     end
 
