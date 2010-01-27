@@ -5,14 +5,7 @@ module RubyNative
       raise "body must be expression" unless body_expression.kind_of?(Expression)
 
       @name = name
-
-      if args.empty?
-        @body = body_expression
-      elsif body_expression.is_a?(ScopeExpression)      # inject it in
-        @body = ScopeExpression.new(body_expression.body, args)
-      else
-        @body = ScopeExpression.new(body_expression, args)
-      end
+      @body = body_expression
     end
 
     def to_s

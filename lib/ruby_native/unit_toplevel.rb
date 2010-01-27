@@ -31,8 +31,18 @@ module RubyNative
       block(name, args, Sexp.new(:scope, sexp))
     end
 
-    def block(name, args, sexp)
-      @blocks << FunctionToplevel.new(name, args, compile(sexp))
+    def block(name, args, body_expression)
+      body = compile(body_expression)
+
+      if args.empty?
+        # nothing
+      elsif body.is_a?(ScopeExpression)      # inject it in
+        body = ScopeExpression.new(body.body, args)
+      else
+        body = ScopeExpression.new(body, args)
+      end
+
+      @blocks << FunctionToplevel.new(name, args, body)
       name
     end
 
