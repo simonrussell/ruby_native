@@ -217,16 +217,19 @@ module RubyNative
 
       s(:block,
         s(:lasgn, :"!masgn", expression),
-        *assigns.map do |assign|
-          index += 1
+        s(:block,
+          *assigns.map do |assign|
+            index += 1
 
-          case assign.sexp_type
-          when :lasgn
-            s(:lasgn, assign.sexp_body.first, s(:call, s(:lvar, :"!masgn"), :[], s(:arglist, s(:lit, index))))
-          else
-            raise "don't know how to masgn #{assign}"
+            case assign.sexp_type
+            when :lasgn
+              s(:lasgn, assign.sexp_body.first, s(:call, s(:lvar, :"!masgn"), :[], s(:arglist, s(:lit, index))))
+            else
+              raise "don't know how to masgn #{assign}"
+            end
           end
-        end
+        ),
+        s(:lvar, :"!masgn")
       )
     end
 
