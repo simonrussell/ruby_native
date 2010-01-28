@@ -1,7 +1,9 @@
 module RubyNative
   class ClassDefinitionToplevel < Toplevel
+    attr_reader :name, :body
 
     def initialize(name, body_expression)
+      @name = name
       @body = body_expression
     end
 
