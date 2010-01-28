@@ -4,7 +4,7 @@ puts (class X
   x = 123
 
   def show_x
-    puts x
+    puts defined?(x)
   end
 end).inspect
 
