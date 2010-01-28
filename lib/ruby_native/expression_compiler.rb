@@ -151,6 +151,8 @@ module RubyNative
       method = call.sexp_body[1]
       args = call.sexp_body[2]
 
+      raise "can't call with args and block yet #{args}" unless args.nil? || args.sexp_body.empty?
+
       CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(method), 0, 'NULL', @unit.block(blockargs, block_body, true), 'scope')
     end
 
@@ -169,7 +171,12 @@ module RubyNative
 
     # control structures
     def compile_return(x)
-      StatementExpression.new(ReturnStatement.new(compile(x)))  
+      StatementExpression.new(
+        SequenceStatement.new(
+          ReturnStatement.new(compile(x)),
+          ExpressionStatement.new(compile_nil) 
+        )
+      )
     end
 
     def compile_if(test, true_x, false_x)

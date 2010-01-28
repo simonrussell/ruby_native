@@ -38,6 +38,17 @@ code = %{
     curr
   end
 
+  def compiled_fib4(n)
+    curr = 0
+    succ = 1
+
+    n.times do |i|
+      curr, succ = succ, curr + succ
+    end
+
+    return curr
+  end
+
   x, y, *z = [1,2,3,4]
   puts [x, y, z].inspect
 
