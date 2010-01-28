@@ -274,9 +274,7 @@ module RubyNative
     end
 
     def compile_scope(body = nil)
-      return compile_nil unless body
-
-      ScopeExpression.new(compile(body))
+      compile(body)
     end
 
     private

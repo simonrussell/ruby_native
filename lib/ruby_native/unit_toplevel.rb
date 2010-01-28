@@ -36,18 +36,11 @@ module RubyNative
 
       args_scopers = compile(
         s(:block, 
-          s(:lasgn, :self, s(:c_literal, 'self')),
           *args.map { |a| s(:lasgn, a, s(:c_literal, a.to_s)) }
         )
       )
 
-      if body.is_a?(ScopeExpression)      # inject it in
-        body = ScopeExpression.new(body.body, args, args_scopers)
-      else
-        body = ScopeExpression.new(body, args, args_scopers)
-      end
-
-      @blocks << MethodDefinitionToplevel.new(name, body)
+      @blocks << MethodDefinitionToplevel.new(name, args, args_scopers, body)
       name
     end
 
