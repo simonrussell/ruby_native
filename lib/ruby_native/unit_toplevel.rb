@@ -55,6 +55,12 @@ module RubyNative
       block("rn_anon_#{block_id!}", args, sexp)
     end
 
+    def class_definition(body)
+      name = "rn_class_#{block_id!}"
+      @blocks << ClassDefinitionToplevel.new(name, compile(body))
+      name
+    end
+
     def to_s
       "ID *_symbols;\n" +
       "static void setup_symbols(void) {\n  _symbols = malloc(sizeof(ID) * #{@symbols.values.max + 1});\n#{

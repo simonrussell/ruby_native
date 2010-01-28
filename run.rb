@@ -51,6 +51,7 @@ puts <<EOC
 
 #define TO_BOOL(x) ((x) ? Qtrue : Qfalse)
 #define SYM(key, name)  (_symbols[key])
+#define SELF_CLASS      (TYPE(self) == T_CLASS ? self : CLASS_OF(self))
 
 static inline VALUE array_element(VALUE array, long index)
 {

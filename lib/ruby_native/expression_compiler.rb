@@ -246,9 +246,9 @@ module RubyNative
       parent ||= s(:const, :Object)
 
       CallExpression.new(
-        @unit.anonymous_block([], body),
+        @unit.class_definition(body),
         CallExpression.new('rb_define_class_under',
-          CallExpression.new('CLASS_OF', compile_self),          
+          SimpleExpression.new('SELF_CLASS'),          
           name.to_s.inspect,
           compile(parent)
         )
@@ -264,7 +264,7 @@ module RubyNative
 
       GroupingExpression.new(
         CallExpression.new('rb_define_method', 
-          SimpleExpression.new("(TYPE(self) == T_CLASS ? self : CLASS_OF(self))"),
+          SimpleExpression.new('SELF_CLASS'),
           name.to_s.inspect,   # TODO escape properly
           @unit.anonymous_block(args, body),     # anonymous, because we don't actually know what class we're in, might be clashes
           args.length
