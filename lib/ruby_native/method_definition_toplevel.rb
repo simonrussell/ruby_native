@@ -15,7 +15,7 @@ module RubyNative
         "VALUE #{a}"
       end
 
-      "static VALUE #{@name}(#{arg_list.join(', ')}) {\n  VALUE scope = _local_alloc(Qnil, self);\n  #{@args_scopers};\n  return #{@body};\n}\n"
+      "static VALUE #{@name}(#{arg_list.join(', ')}) {\n  VALUE result, scope = _local_alloc(Qnil, self);\n  #{@args_scopers};\n  result = #{@body};\nexit:\n  return result;\n}\n"
     end
 
   end

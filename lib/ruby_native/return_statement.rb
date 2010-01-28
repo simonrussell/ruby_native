@@ -6,7 +6,7 @@ module RubyNative
     end
 
     def to_s
-      "return #{@expression};\n"
+      "result = #{@expression};\ngoto exit;\n"
     end
 
   end

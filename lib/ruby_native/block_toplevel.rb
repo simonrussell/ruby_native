@@ -10,7 +10,7 @@ module RubyNative
     end
 
     def to_s
-      "static VALUE #{@name}(VALUE arg, VALUE scope) {\n  VALUE self = _local_self(scope);\n  #{@arg_scopers};\n  return #{@body};\n}\n"
+      "static VALUE #{@name}(VALUE arg, VALUE scope) {\n  VALUE result, self = _local_self(scope);\n  #{@arg_scopers};\n  result = #{@body};\nexit:\n  return result;\n}\n"
     end
 
   end

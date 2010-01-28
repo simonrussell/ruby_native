@@ -8,7 +8,8 @@ module RubyNative
     end
 
     def to_s
-      "static VALUE #{@name}(VALUE self) {\n  VALUE scope = _local_alloc(Qnil, self);\n  #{@body};\n  return Qnil;\n}\n"      
+      # we have result var here, but we never actually return it ... lame
+      "static VALUE #{@name}(VALUE self) {\n  VALUE result, scope = _local_alloc(Qnil, self);\n  #{@body};\nexit:\n  return Qnil;\n}\n"
     end
 
   end
