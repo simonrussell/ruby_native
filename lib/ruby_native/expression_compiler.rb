@@ -145,14 +145,13 @@ module RubyNative
     end
 
     def compile_iter(call, blockargs, block_body)
-      raise "can't compile block args yet" unless blockargs.nil?
       raise "call must be a call!" unless call.sexp_type == :call
 
       target = call.sexp_body[0] || s(:self)
       method = call.sexp_body[1]
       args = call.sexp_body[2]
 
-      CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(method), 0, 'NULL', @unit.block([], block_body), 'scope')
+      CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(method), 0, 'NULL', @unit.block(blockargs, block_body), 'scope')
     end
 
     # ranges
@@ -222,24 +221,9 @@ module RubyNative
       raise "don't know how to do anything other than array masgn" unless assigns.sexp_type == :array
       assigns = assigns.sexp_body
 
-      index = -1
-
       GroupingExpression.new(
         compile_lasgn("!masgn", expression),
-        GroupingExpression.new(
-          *assigns.map do |assign|
-            index += 1
-
-            case assign.sexp_type
-            when :lasgn
-              CallExpression.new('_local_set', 'scope', @unit.compile__intern(assign.sexp_body.first), CallExpression.new('array_element', compile_lvar('!masgn'), index))
-            when :splat
-              CallExpression.new('_local_set', 'scope', @unit.compile__intern(assign.sexp_body.first.sexp_body.first), CallExpression.new('array_tail', compile_lvar('!masgn'), index))
-            else
-              raise "don't know how to masgn #{assign}"
-            end
-          end
-        ),
+        masgn_assigns(assigns, compile_lvar('!masgn')),
         compile_lvar("!masgn")
       )
     end
@@ -284,6 +268,27 @@ module RubyNative
       compile(body)
     end
 
+    def masgn_assigns(assigns, source)
+      return compile_nil if assigns.nil?
+
+      index = -1
+
+      GroupingExpression.new(
+        *assigns.map do |assign|
+          index += 1
+
+          case assign.sexp_type
+          when :lasgn
+            CallExpression.new('_local_set', 'scope', @unit.compile__intern(assign.sexp_body.first), CallExpression.new('array_element', source, index))
+          when :splat
+            CallExpression.new('_local_set', 'scope', @unit.compile__intern(assign.sexp_body.first.sexp_body.first), CallExpression.new('array_tail', source, index))
+          else
+            raise "don't know how to masgn #{assign}"
+          end
+        end
+      )
+    end
+
     private
 
     def check!(value, against)
@@ -301,5 +306,6 @@ module RubyNative
     def s(*args)
       Sexp.new(*args)
     end
+
   end 
 end

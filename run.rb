@@ -42,7 +42,9 @@ code = %{
   puts [x, y, z].inspect
 
   3.times { puts "yay!" }
-
+  
+  [1,2,3].each { |x| puts x }
+  { :a => :b, :c => :d }.each { |k, v| puts k.to_s + " => " + v.to_s }
 }
 
 parsed = RubyNative::Reader.from_string(code)

@@ -46,10 +46,20 @@ module RubyNative
     end
 
     def block(args, body)
-      raise "no args!" unless args.empty?
-
       name = "rn_block_#{block_id!}"
-      @blocks << BlockToplevel.new(name, ExpressionCompiler.new(self).compile(body))
+      compiler = ExpressionCompiler.new(self)
+      
+      if args.nil?
+        arg_scopers = compiler.compile_nil
+      elsif args.sexp_type == :lasgn
+        arg_scopers = compiler.compile_lasgn(args.sexp_body.first, Sexp.new(:c_literal, 'arg'))
+      elsif args.sexp_type == :masgn
+        arg_scopers = compiler.masgn_assigns(args.sexp_body.first.sexp_body, 'arg')
+      else
+        raise "don't know how to use #{args} for arguments to block"
+      end
+
+      @blocks << BlockToplevel.new(name, arg_scopers, compiler.compile(body))
       name
     end
 
