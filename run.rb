@@ -57,6 +57,8 @@ code = %{
   [1,2,3].each { |x| puts x, y }
   puts x
   { :a => :b, :c => :d }.each { |k, v| puts k.to_s + " => " + v.to_s }
+
+  for x in %w(a b c); puts x; end
 }
 
 parsed = RubyNative::Reader.from_string(code)

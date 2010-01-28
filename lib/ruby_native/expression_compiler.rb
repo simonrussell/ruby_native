@@ -170,6 +170,10 @@ module RubyNative
     end
 
     # control structures
+    def compile_for(target, blockargs, body = nil)
+      CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(:each), 0, 'NULL', @unit.block(blockargs, body, false), 'scope')
+    end
+
     def compile_return(x)
       StatementExpression.new(
         SequenceStatement.new(
