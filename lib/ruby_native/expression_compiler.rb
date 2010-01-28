@@ -224,6 +224,9 @@ module RubyNative
             case assign.sexp_type
             when :lasgn
               s(:lasgn, assign.sexp_body.first, s(:call, s(:lvar, :"!masgn"), :[], s(:arglist, s(:lit, index))))
+            when :splat
+              raise "don't know how to splat #{assign.sexp_body}" unless assign.sexp_body.first.sexp_type == :lasgn
+              s(:lasgn, assign.sexp_body.first.sexp_body.first, s(:or, s(:call, s(:lvar, :"!masgn"), :[], s(:arglist, s(:lit, index .. -1))), s(:array)))
             else
               raise "don't know how to masgn #{assign}"
             end
