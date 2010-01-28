@@ -6,5 +6,5 @@ pp_sexp STDOUT, parsed
 puts "-------------------------"
 
 unit = RubyNative::UnitToplevel.new
-unit.named_method_definition('zzzzzz', [], parsed)
+unit.method_definition([], parsed)
 puts unit

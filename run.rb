@@ -168,13 +168,13 @@ static VALUE fast_funcall1(VALUE target, ID method, VALUE arg)
 EOC
 
 unit = RubyNative::UnitToplevel.new
-unit.named_method_definition('file_scope', [], parsed)
+file_scope_name = unit.method_definition([], parsed)
 puts unit
 
 puts <<EOC
 static VALUE bootstrap(VALUE self, VALUE real_self)
 {
-  return file_scope(real_self);
+  return #{file_scope_name}(real_self);
 }
 
 void Init_mymodule(void)
