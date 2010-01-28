@@ -2,8 +2,6 @@ module RubyNative
   class UnitToplevel < Toplevel
 
     def initialize
-      @expression_compiler = ExpressionCompiler.new(self)
-
       @block_id = 0
       @blocks = []
 
@@ -19,22 +17,19 @@ module RubyNative
       @symbol_id += 1
     end
 
-    def compile(sexp)
-      @expression_compiler.compile(sexp)
-    end
-
     def symbol(name)
       @symbols[name] ||= symbol_id!
     end
 
-    def scoped_block(name, args, sexp)
-      block(name, args, Sexp.new(:scope, sexp))
+    def method_definition(args, body_expression)
+      named_method_definition("rn_method_#{block_id!}", args, body_expression)
     end
 
-    def block(name, args, body_expression)
-      body = compile(body_expression)
+    def named_method_definition(name, args, body_expression)
+      compiler = ExpressionCompiler.new(self)
+      body = compiler.compile(body_expression)
 
-      args_scopers = compile(
+      args_scopers = compiler.compile(
         s(:block, 
           *args.map { |a| s(:lasgn, a, s(:c_literal, a.to_s)) }
         )
@@ -44,13 +39,9 @@ module RubyNative
       name
     end
 
-    def anonymous_block(args, sexp)
-      block("rn_anon_#{block_id!}", args, sexp)
-    end
-
     def class_definition(body)
       name = "rn_class_#{block_id!}"
-      @blocks << ClassDefinitionToplevel.new(name, compile(body))
+      @blocks << ClassDefinitionToplevel.new(name, ExpressionCompiler.new(self).compile(body))
       name
     end
 

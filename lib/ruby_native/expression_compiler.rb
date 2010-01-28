@@ -266,7 +266,7 @@ module RubyNative
         CallExpression.new('rb_define_method', 
           SimpleExpression.new('SELF_CLASS'),
           name.to_s.inspect,   # TODO escape properly
-          @unit.anonymous_block(args, body),     # anonymous, because we don't actually know what class we're in, might be clashes
+          @unit.method_definition(args, body),     # anonymous, because we don't actually know what class we're in, might be clashes
           args.length
         ),
         compile_nil

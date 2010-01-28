@@ -168,7 +168,7 @@ static VALUE fast_funcall1(VALUE target, ID method, VALUE arg)
 EOC
 
 unit = RubyNative::UnitToplevel.new
-unit.scoped_block('file_scope', [], parsed)
+unit.named_method_definition('file_scope', [], parsed)
 puts unit
 
 puts <<EOC
