@@ -6,7 +6,7 @@ module RubyNative
     end
 
     def to_s
-      @expressions.join(",\n")
+      "(\n#{@expressions.join(",\n")}\n)"
     end
 
   end
