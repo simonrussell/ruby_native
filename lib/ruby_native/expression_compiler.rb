@@ -151,7 +151,7 @@ module RubyNative
       method = call.sexp_body[1]
       args = call.sexp_body[2]
 
-      CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(method), 0, 'NULL', @unit.block(blockargs, block_body), 'scope')
+      CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(method), 0, 'NULL', @unit.block(blockargs, block_body, true), 'scope')
     end
 
     # ranges

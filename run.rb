@@ -43,7 +43,8 @@ code = %{
 
   3.times { puts "yay!" }
   
-  [1,2,3].each { |x| puts x }
+  [1,2,3].each { |x| puts x, y }
+  puts x
   { :a => :b, :c => :d }.each { |k, v| puts k.to_s + " => " + v.to_s }
 }
 
@@ -106,7 +107,7 @@ inline static VALUE _local_self(VALUE scope)
 
 static VALUE _local_get(VALUE scope, ID name)
 {
-  VALUE *i, *end, search_for;
+  VALUE *i, *end, search_for, outer_scope;
 
   Check_Type(scope, T_ARRAY);
   end = RARRAY(scope)->ptr + RARRAY(scope)->len;
@@ -118,26 +119,57 @@ static VALUE _local_get(VALUE scope, ID name)
       return *(i + 1);
   }
 
-  return Qundef;
+  outer_scope = array_element(scope, 0);
+
+  if (RTEST(outer_scope))   /* outer scope? */
+  {
+    return _local_get(outer_scope, name);
+  }
+  else
+  {
+    return Qnil;
+  }
 }
 
-static VALUE _local_set(VALUE scope, ID name, VALUE value)
+/* don't add it if it's not there */
+static int _local_set_only(VALUE scope, VALUE search_for, VALUE value)
 {
-  VALUE *i, *end, search_for;
+  VALUE *i, *end;
 
   Check_Type(scope, T_ARRAY);
   end = RARRAY(scope)->ptr + RARRAY(scope)->len;
-  search_for = ID2SYM(name);
-
 
   for (i = RARRAY(scope)->ptr + 2; i < end; i += 2)
   {
     if (*i == search_for)
-      return (*(i + 1) = value);
+    {
+      *(i + 1) = value;
+      return 1;
+    }
   }
 
-  rb_ary_push(scope, search_for);
-  rb_ary_push(scope, value);
+  {
+    VALUE outer_scope = array_element(scope, 0);
+
+    if (RTEST(outer_scope))
+    {
+      return _local_set_only(outer_scope, search_for, value);
+    }
+  }
+
+  return 0;  
+}
+
+static VALUE _local_set(VALUE scope, ID name, VALUE value)
+{
+  VALUE search_for = ID2SYM(name);
+  VALUE outer_scope;
+
+  if (!_local_set_only(scope, search_for, value))
+  {
+    rb_ary_push(scope, search_for);
+    rb_ary_push(scope, value);
+  }
 
   return value;
 }

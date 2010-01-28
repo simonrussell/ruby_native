@@ -45,7 +45,7 @@ module RubyNative
       name
     end
 
-    def block(args, body)
+    def block(args, body, scoped)
       name = "rn_block_#{block_id!}"
       compiler = ExpressionCompiler.new(self)
       
@@ -59,7 +59,7 @@ module RubyNative
         raise "don't know how to use #{args} for arguments to block"
       end
 
-      @blocks << BlockToplevel.new(name, arg_scopers, compiler.compile(body))
+      @blocks << (scoped ? ScopedBlockToplevel : BlockToplevel).new(name, arg_scopers, compiler.compile(body))
       name
     end
 
