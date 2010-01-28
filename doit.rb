@@ -24,6 +24,21 @@ def fib2(n)
   curr
 end
 
+
+def fib3(n)
+  curr = 0
+  succ = 1
+
+  i = 0
+  while i < n
+    curr, succ = succ, curr + succ
+
+    i += 1
+  end
+
+  curr
+end
+
 require 'benchmark' if ARGV.first == 'bm'
 
 puts `ruby run.rb > mymodule/mymodule.c`
@@ -41,16 +56,16 @@ if $? == 0
 
       Benchmark.bmbm do |benchmark|
         benchmark.report 'interpreted' do
-          MULTIPLE.times { fib2(100_000) }
+          MULTIPLE.times { fib3(100_000) }
         end
 
         benchmark.report 'compiled' do
-          MULTIPLE.times { compiled_fib2(100_000) }
+          MULTIPLE.times { compiled_fib3(100_000) }
         end
       end
     else
       Mymodule.bootstrap(self)
-      puts compiled_fib2(40)
+      puts compiled_fib3(40)
     end
   end
 end

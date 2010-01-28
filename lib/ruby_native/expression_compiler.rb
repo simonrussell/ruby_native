@@ -209,6 +209,31 @@ module RubyNative
       CallExpression.new('_local_set', 'scope', @unit.compile__intern(name), compile(value))
     end
 
+    def transform_masgn(assigns, expression)
+      index = -1
+
+      raise "don't know how to do anything other than array masgn" unless assigns.sexp_type == :array
+      assigns = assigns.sexp_body
+
+      s(:block,
+        s(:lasgn, :"!masgn", expression),
+        *assigns.map do |assign|
+          index += 1
+
+          case assign.sexp_type
+          when :lasgn
+            s(:lasgn, assign.sexp_body.first, s(:call, s(:lvar, :"!masgn"), :[], s(:arglist, s(:lit, index))))
+          else
+            raise "don't know how to masgn #{assign}"
+          end
+        end
+      )
+    end
+
+    def compile_to_ary(expression)
+      CallExpression.new('rb_ary_to_ary', compile(expression))
+    end
+
     # definitions
     def compile_class(name, parent, body)
       parent ||= s(:const, :Object)

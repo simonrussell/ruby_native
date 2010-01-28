@@ -24,6 +24,20 @@ code = %{
     curr
   end
 
+  def compiled_fib3(n)
+    curr = 0
+    succ = 1
+
+    i = 0
+    while i < n
+      curr, succ = succ, curr + succ
+
+      i += 1
+    end
+
+    curr
+  end
+
 }
 
 parsed = RubyNative::Reader.from_string(code)
@@ -34,6 +48,18 @@ puts <<EOC
 
 #define TO_BOOL(x) ((x) ? Qtrue : Qfalse)
 #define SYM(key, name)  (_symbols[key])
+
+static inline VALUE array_element(VALUE array, long index)
+{
+  if (index >= 0 && index < RARRAY(array)->len)
+  {
+    return RARRAY(array)->ptr[index];
+  }
+  else
+  {
+    return Qnil;
+  }
+}
 
 // these are really just aliases, but it looks nicer (could also do more checking?)
 static VALUE _local_alloc()
