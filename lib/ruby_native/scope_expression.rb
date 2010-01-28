@@ -12,7 +12,7 @@ module RubyNative
     end
 
     def to_s
-      "({\n  VALUE scope = _local_alloc();\n#{@args_scopers};\n#{@body};\n})"
+      "({\n  VALUE scope = _local_alloc(Qnil, self);\n#{@args_scopers};\n#{@body};\n})"
     end
 
   end

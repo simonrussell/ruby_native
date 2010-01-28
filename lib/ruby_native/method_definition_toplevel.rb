@@ -1,5 +1,5 @@
 module RubyNative
-  class FunctionToplevel
+  class MethodDefinitionToplevel < Toplevel
 
     def initialize(name, body_expression)
       raise "body must be expression" unless body_expression.kind_of?(Expression)

@@ -87,9 +87,12 @@ static VALUE array_tail(VALUE array, long index)
 }
 
 // these are really just aliases, but it looks nicer (could also do more checking?)
-static VALUE _local_alloc()
+static VALUE _local_alloc(VALUE outer_scope, VALUE self)
 {
-  return rb_ary_new2(8);
+  VALUE scope = rb_ary_new();
+
+  rb_ary_push(scope, outer_scope);
+  rb_ary_push(scope, self);
 }
 
 static VALUE _local_get(VALUE scope, ID name)
@@ -100,7 +103,7 @@ static VALUE _local_get(VALUE scope, ID name)
   end = RARRAY(scope)->ptr + RARRAY(scope)->len;
   search_for = ID2SYM(name);
 
-  for (i = RARRAY(scope)->ptr; i < end; i += 2)
+  for (i = RARRAY(scope)->ptr + 2; i < end; i += 2)
   {
     if (*i == search_for)
       return *(i + 1);
@@ -118,7 +121,7 @@ static VALUE _local_set(VALUE scope, ID name, VALUE value)
   search_for = ID2SYM(name);
 
 
-  for (i = RARRAY(scope)->ptr; i < end; i += 2)
+  for (i = RARRAY(scope)->ptr + 2; i < end; i += 2)
   {
     if (*i == search_for)
       return (*(i + 1) = value);

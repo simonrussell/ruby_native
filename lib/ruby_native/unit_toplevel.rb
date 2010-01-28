@@ -47,7 +47,7 @@ module RubyNative
         body = ScopeExpression.new(body, args, args_scopers)
       end
 
-      @blocks << FunctionToplevel.new(name, body)
+      @blocks << MethodDefinitionToplevel.new(name, body)
       name
     end
 
