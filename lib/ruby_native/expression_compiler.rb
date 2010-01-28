@@ -209,30 +209,31 @@ module RubyNative
       CallExpression.new('_local_set', 'scope', @unit.compile__intern(name), compile(value))
     end
 
-    def transform_masgn(assigns, expression)
-      index = -1
+    def compile_masgn(assigns, expression)
+      raise "expression must be either array or to_ary" unless [:array, :to_ary].include?(expression.sexp_type)
 
       raise "don't know how to do anything other than array masgn" unless assigns.sexp_type == :array
       assigns = assigns.sexp_body
 
-      s(:block,
-        s(:lasgn, :"!masgn", expression),
-        s(:block,
+      index = -1
+
+      GroupingExpression.new(
+        compile_lasgn("!masgn", expression),
+        GroupingExpression.new(
           *assigns.map do |assign|
             index += 1
 
             case assign.sexp_type
             when :lasgn
-              s(:lasgn, assign.sexp_body.first, s(:call, s(:lvar, :"!masgn"), :[], s(:arglist, s(:lit, index))))
+              CallExpression.new('_local_set', 'scope', @unit.compile__intern(assign.sexp_body.first), CallExpression.new('array_element', compile_lvar('!masgn'), index))
             when :splat
-              raise "don't know how to splat #{assign.sexp_body}" unless assign.sexp_body.first.sexp_type == :lasgn
-              s(:lasgn, assign.sexp_body.first.sexp_body.first, s(:or, s(:call, s(:lvar, :"!masgn"), :[], s(:arglist, s(:lit, index .. -1))), s(:array)))
+              CallExpression.new('_local_set', 'scope', @unit.compile__intern(assign.sexp_body.first.sexp_body.first), CallExpression.new('array_tail', compile_lvar('!masgn'), index))
             else
               raise "don't know how to masgn #{assign}"
             end
           end
         ),
-        s(:lvar, :"!masgn")
+        compile_lvar("!masgn")
       )
     end
 

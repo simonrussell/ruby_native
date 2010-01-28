@@ -38,6 +38,9 @@ code = %{
     curr
   end
 
+  x, y, *z = [1,2,3,4]
+  puts [x, y, z].inspect
+
 }
 
 parsed = RubyNative::Reader.from_string(code)
@@ -59,6 +62,27 @@ static inline VALUE array_element(VALUE array, long index)
   {
     return Qnil;
   }
+}
+
+static VALUE array_tail(VALUE array, long index)
+{
+  VALUE result;
+  long tail_length;
+
+  if (index < 0)
+    index = 0;        /* really doesn't make much sense? */
+
+  tail_length = RARRAY(array)->len - index;
+
+  if (tail_length <= 0)
+    return rb_ary_new();
+
+  /* allocate an array the right size, copy the elements over */
+  result = rb_ary_new2(tail_length);
+  memcpy(RARRAY(result)->ptr, RARRAY(array)->ptr + index, tail_length * sizeof(VALUE));
+  RARRAY(result)->len = tail_length;
+
+  return result;
 }
 
 // these are really just aliases, but it looks nicer (could also do more checking?)
