@@ -32,7 +32,17 @@ def test4
   end
 end
 
+def test5
+  [1,2,3].each do |x|
+  end
+
+  !defined?(x)
+end
+
+
 puts test1
 puts test2
 puts test3
 puts test4
+puts test5
+
