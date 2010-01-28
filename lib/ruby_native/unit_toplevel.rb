@@ -45,6 +45,14 @@ module RubyNative
       name
     end
 
+    def block(args, body)
+      raise "no args!" unless args.empty?
+
+      name = "rn_block_#{block_id!}"
+      @blocks << BlockToplevel.new(name, ExpressionCompiler.new(self).compile(body))
+      name
+    end
+
     def to_s
       "ID *_symbols;\n" +
       "static void setup_symbols(void) {\n  _symbols = malloc(sizeof(ID) * #{@symbols.values.max + 1});\n#{

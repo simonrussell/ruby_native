@@ -145,7 +145,14 @@ module RubyNative
     end
 
     def compile_iter(call, blockargs, block_body)
-      raise "not implemented"
+      raise "can't compile block args yet" unless blockargs.nil?
+      raise "call must be a call!" unless call.sexp_type == :call
+
+      target = call.sexp_body[0] || s(:self)
+      method = call.sexp_body[1]
+      args = call.sexp_body[2]
+
+      CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(method), 0, 'NULL', @unit.block([], block_body), 'scope')
     end
 
     # ranges

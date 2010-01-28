@@ -41,6 +41,8 @@ code = %{
   x, y, *z = [1,2,3,4]
   puts [x, y, z].inspect
 
+  3.times { puts "yay!" }
+
 }
 
 parsed = RubyNative::Reader.from_string(code)
@@ -93,6 +95,11 @@ static VALUE _local_alloc(VALUE outer_scope, VALUE self)
 
   rb_ary_push(scope, outer_scope);
   rb_ary_push(scope, self);
+}
+
+inline static VALUE _local_self(VALUE scope)
+{
+  array_element(scope, 1);
 }
 
 static VALUE _local_get(VALUE scope, ID name)
