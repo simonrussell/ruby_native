@@ -27,6 +27,7 @@ module RubyNative
 
     def named_method_definition(name, args, body_expression)
       compiler = ExpressionCompiler.new(self)
+      args.each { |a| compiler.scope.local_variable!(a) }
       body = compiler.compile(body_expression)
 
       args_scopers = compiler.compile(
@@ -35,7 +36,7 @@ module RubyNative
         )
       )
 
-      @blocks << MethodDefinitionToplevel.new(name, args, args_scopers, compiler.locals_used, body)
+      @blocks << MethodDefinitionToplevel.new(name, args, args_scopers, compiler.scope, body)
       name
     end
 
@@ -44,13 +45,13 @@ module RubyNative
       compiler = ExpressionCompiler.new(self)
       compiled_body = compiler.compile(body)
 
-      @blocks << ClassDefinitionToplevel.new(name, compiler.locals_used, compiled_body)
+      @blocks << ClassDefinitionToplevel.new(name, compiler.scope, compiled_body)
       name
     end
 
-    def block(args, body, scoped)
+    def block(outer_scope, args, body, scoped)
       name = "rn_block_#{block_id!}"
-      compiler = ExpressionCompiler.new(self)
+      compiler = ExpressionCompiler.new(self, outer_scope)
       
       if args.nil?
         arg_scopers = compiler.compile_nil
@@ -64,16 +65,16 @@ module RubyNative
 
       compiled_body = compiler.compile(body)
 
-      @blocks << (scoped ? ScopedBlockToplevel : BlockToplevel).new(name, arg_scopers, compiler.locals_used, compiled_body)
+      @blocks << (scoped ? ScopedBlockToplevel : BlockToplevel).new(name, arg_scopers, compiler.scope, compiled_body)
       name
     end
 
-    def iter(body)
+    def iter(outer_scope, body)
       name = "rn_iter_#{block_id!}"
-      compiler = ExpressionCompiler.new(self)
+      compiler = ExpressionCompiler.new(self, outer_scope)
       compiled_body = compiler.compile(body)
 
-      @blocks << IterToplevel.new(name, compiler.locals_used, compiled_body)
+      @blocks << IterToplevel.new(name, compiler.scope, compiled_body)
       name
     end
 

@@ -1,15 +1,12 @@
 module RubyNative
   class ExpressionCompiler
+    attr_reader :scope
     
-    def initialize(unit)
+    def initialize(unit, outer_scope = nil)
       @unit = unit
-      @locals_used = {}
+      @scope = Scope.new(@unit, outer_scope)
     end
   
-    def locals_used
-      @locals_used
-    end
-
     def bulk_compile(sexps)
       sexps.map { |sexp| compile(sexp) }
     end
@@ -154,9 +151,9 @@ module RubyNative
       raise "call must be a call!" unless call.sexp_type == :call
 
       CallExpression.new('rb_iterate', 
-        @unit.iter(call),
+        @unit.iter(@scope, call),
         'scope',
-        @unit.block(blockargs, block_body, true), 
+        @unit.block(@scope, blockargs, block_body, true), 
         'scope'
       )
     end
@@ -180,7 +177,7 @@ module RubyNative
 
     # control structures
     def compile_for(target, blockargs, body = nil)
-      CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(:each), 0, 'NULL', @unit.block(blockargs, body, false), 'scope')
+      CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(:each), 0, 'NULL', @unit.block(@scope, blockargs, body, false), 'scope')
     end
 
     def compile_return(x)
@@ -228,7 +225,7 @@ module RubyNative
 
     # local variables
     def compile_lvar(name)
-      SimpleExpression.new(local_variable(name))
+      SimpleExpression.new(@scope.local_variable!(name))
     end
 
     def compile_lasgn(name, value)
@@ -341,13 +338,8 @@ module RubyNative
     end
 
     def make_local_set(name, value)
-      LocalSetExpression.new(local_variable(name), value)
+      LocalSetExpression.new(@scope.local_variable!(name), value)
     end
 
-    def local_variable(name)
-      name = name.to_s
-  
-      @locals_used[name] ||= LocalVariable.new(name, @unit.symbol(name))
-    end
   end 
 end

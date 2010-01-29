@@ -5,11 +5,15 @@ module RubyNative
     def initialize(name, id)
       @name = name
       @id = id
-      @scoped = (name !~ /^!/)
+      @scoped = false
     end
 
     def scoped?
       !!@scoped
+    end
+
+    def scoped!
+      @scoped = true
     end
 
     def declaration
