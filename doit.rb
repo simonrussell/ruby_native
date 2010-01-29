@@ -37,7 +37,7 @@ if $? == 0
       puts Compiled.fib4(40)
     end
   else
-    puts File.read('mymodule/mymodule.c')
+    #puts File.read('mymodule/mymodule.c')
     puts gcc_output
   end
 else
