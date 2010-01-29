@@ -2,18 +2,15 @@
 require 'lib/ruby_native'
 
 code = %{
-puts "compiled self == " + self.inspect + ", " + self.class.inspect
 class Compiled
-  puts "compiled self == " + self.inspect
   class << self
-    puts "compiled self == " + self.inspect
     #{File.read('methods.rb')}
   end
 end
 }
 
 parsed = RubyNative::Reader.from_string(code)
-pp_sexp STDERR, parsed
+#pp_sexp STDERR, parsed
 
 puts <<EOC
 #include <ruby.h>

@@ -3,21 +3,17 @@
 MULTIPLE = 1 #1_000_000
 
 class Interpreted
-  puts "interpreted self = " + self.inspect
   class << self
-    puts "interpreted self = " + self.inspect
     eval(File.read('methods.rb'))
   end
 end
 
 require 'benchmark' if ARGV.first == 'bm'
 
-`ruby run.rb > mymodule/mymodule.c`
+run_output = `ruby run.rb > mymodule/mymodule.c`
 
 if $? == 0
-#  puts File.read('mymodule/mymodule.c')
-
-  puts `cd mymodule && make`
+  gcc_output = `cd mymodule && make`
   
   if $? == 0
     require 'mymodule/mymodule'
@@ -38,5 +34,10 @@ if $? == 0
       Mymodule.bootstrap(self)
       puts Compiled.fib4(40)
     end
+  else
+    puts File.read('mymodule/mymodule.c')
+    puts gcc_output
   end
+else
+  puts run_output
 end
