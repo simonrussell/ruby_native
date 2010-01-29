@@ -68,6 +68,15 @@ module RubyNative
       name
     end
 
+    def iter(body)
+      name = "rn_iter_#{block_id!}"
+      compiler = ExpressionCompiler.new(self)
+      compiled_body = compiler.compile(body)
+
+      @blocks << IterToplevel.new(name, compiler.locals_used, compiled_body)
+      name
+    end
+
     def to_s
       "ID *_symbols;\n" +
       "static void setup_symbols(void) {\n  _symbols = malloc(sizeof(ID) * #{@symbols.values.max + 1});\n#{
