@@ -23,11 +23,11 @@ if $? == 0
 
       Benchmark.bmbm do |benchmark|
         benchmark.report 'interpreted' do
-          MULTIPLE.times { Interpreted.fib3(100_000) }
+          MULTIPLE.times { Interpreted.nested_loop(16) }
         end
 
         benchmark.report 'compiled' do
-          MULTIPLE.times { Compiled.fib3(100_000) }
+          MULTIPLE.times { Compiled.nested_loop(16) }
         end
       end
     else

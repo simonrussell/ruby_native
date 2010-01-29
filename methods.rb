@@ -49,3 +49,23 @@ def sieve
   end
   count
 end
+
+def nested_loop(n = 16)
+  x = 0
+  n.times do
+      n.times do
+          n.times do
+              n.times do
+                  n.times do
+                      n.times do
+                          x += 1
+                      end
+                  end
+              end
+          end
+      end
+  end
+  x
+end
+
+
