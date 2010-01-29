@@ -67,11 +67,11 @@ if $? == 0
 
       Benchmark.bmbm do |benchmark|
         benchmark.report 'interpreted' do
-          MULTIPLE.times { fib4(100_000) }
+          MULTIPLE.times { fib3(100_000) }
         end
 
         benchmark.report 'compiled' do
-          MULTIPLE.times { compiled_fib4(100_000) }
+          MULTIPLE.times { compiled_fib3(100_000) }
         end
       end
     else

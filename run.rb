@@ -161,7 +161,7 @@ static VALUE _local_get(VALUE scope, ID name)
 }
 
 /* don't add it if it's not there */
-static int _local_set_only(VALUE scope, VALUE search_for, VALUE value)
+static VALUE *_local_set_only(VALUE scope, VALUE search_for, VALUE value)
 {
   VALUE *i, *end;
 
@@ -172,8 +172,12 @@ static int _local_set_only(VALUE scope, VALUE search_for, VALUE value)
   {
     if (*i == search_for)
     {
-      *(i + 1) = value;
-      return 1;
+      if (value != Qundef)    /* we can just search, without setting */
+      {
+        *(i + 1) = value;
+      }
+
+      return i + 1;   /* address of var */
     }
   }
 
@@ -186,7 +190,7 @@ static int _local_set_only(VALUE scope, VALUE search_for, VALUE value)
     }
   }
 
-  return 0;  
+  return NULL;
 }
 
 static VALUE _local_set(VALUE scope, ID name, VALUE value)
@@ -201,6 +205,26 @@ static VALUE _local_set(VALUE scope, ID name, VALUE value)
   }
 
   return value;
+}
+
+static VALUE *_local_ptr(VALUE scope, ID name)
+{
+  VALUE search_for = ID2SYM(name);
+  VALUE outer_scope;
+
+  VALUE *result = _local_set_only(scope, search_for, Qundef);    /* try and find existing address */
+
+  if (!result)
+  {
+    rb_ary_push(scope, search_for);
+    rb_ary_push(scope, Qnil);
+
+    return RARRAY(scope)->ptr + RARRAY(scope)->len - 1;   /* the address of what we just pushed */
+  }
+  else
+  {
+    return result;
+  }
 }
 
 static VALUE _local_defined(VALUE scope, VALUE name)

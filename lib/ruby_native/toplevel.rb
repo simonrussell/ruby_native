@@ -6,5 +6,13 @@ module RubyNative
       raise "not implemented; abstract"
     end
 
+    protected
+
+    def locals_decl(locals_used)
+      return '' if locals_used.empty?
+    
+      "VALUE #{locals_used.map { |name, id| "*local_#{id} = _local_ptr(scope, SYM(#{id}, #{name.inspect}))" }.join(', ')};"
+    end
+
   end
 end

@@ -1,11 +1,12 @@
 module RubyNative
   class ScopedBlockToplevel < Toplevel
 
-    def initialize(name, arg_scopers, body_expression)
+    def initialize(name, arg_scopers, locals_used, body_expression)
       raise "body must be expression (is #{body_expression.class})" unless body_expression.kind_of?(Expression)
 
       @name = name
       @arg_scopers = arg_scopers
+      @locals_used = locals_used
       @body = body_expression
     end
 
@@ -16,6 +17,7 @@ static VALUE #{@name}(VALUE arg, VALUE outer_scope)
   DECLARE_NODE;
   VALUE result, self = _local_self(outer_scope);
   VALUE scope = _local_alloc(outer_scope, self);
+  #{locals_decl(@locals_used)}
   SHUFFLE_NODE(__FILE__, __LINE__),
   #{@arg_scopers};
   result = #{@body};

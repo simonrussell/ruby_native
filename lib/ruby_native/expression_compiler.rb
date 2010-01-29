@@ -3,6 +3,11 @@ module RubyNative
     
     def initialize(unit)
       @unit = unit
+      @locals_used = {}
+    end
+  
+    def locals_used
+      @locals_used
     end
 
     def bulk_compile(sexps)
@@ -219,11 +224,15 @@ module RubyNative
 
     # local variables
     def compile_lvar(name)
-      CallExpression.new('_local_get', 'scope', @unit.compile__intern(name))
+      use_local!(name)
+#      CallExpression.new('_local_get', 'scope', @unit.compile__intern(name))
+      SimpleExpression.new("(*local_#{@unit.symbol(name)})")
     end
 
     def compile_lasgn(name, value)
-      CallExpression.new('_local_set', 'scope', @unit.compile__intern(name), compile(value))
+      use_local!(name)
+#      CallExpression.new('_local_set', 'scope', @unit.compile__intern(name), compile(value))
+      LocalSetExpression.new(@unit.symbol(name), compile(value))
     end
 
     def compile_masgn(assigns, expression)
@@ -290,9 +299,9 @@ module RubyNative
 
           case assign.sexp_type
           when :lasgn
-            CallExpression.new('_local_set', 'scope', @unit.compile__intern(assign.sexp_body.first), CallExpression.new('array_element', source, index))
+            LocalSetExpression.new(@unit.symbol(use_local!(assign.sexp_body.first)), CallExpression.new('array_element', source, index))
           when :splat
-            CallExpression.new('_local_set', 'scope', @unit.compile__intern(assign.sexp_body.first.sexp_body.first), CallExpression.new('array_tail', source, index))
+            LocalSetExpression.new(@unit.symbol(use_local!(assign.sexp_body.first.sexp_body.first)), CallExpression.new('array_tail', source, index))
           else
             raise "don't know how to masgn #{assign}"
           end
@@ -318,5 +327,9 @@ module RubyNative
       Sexp.new(*args)
     end
 
+    def use_local!(local)
+      @locals_used[local.to_s] = @unit.symbol(local)
+      local
+    end
   end 
 end

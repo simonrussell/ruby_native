@@ -18,7 +18,7 @@ module RubyNative
     end
 
     def symbol(name)
-      @symbols[name] ||= symbol_id!
+      @symbols[name.to_s] ||= symbol_id!
     end
 
     def method_definition(args, body_expression)
@@ -35,13 +35,16 @@ module RubyNative
         )
       )
 
-      @blocks << MethodDefinitionToplevel.new(name, args, args_scopers, body)
+      @blocks << MethodDefinitionToplevel.new(name, args, args_scopers, compiler.locals_used, body)
       name
     end
 
     def class_definition(body)
       name = "rn_class_#{block_id!}"
-      @blocks << ClassDefinitionToplevel.new(name, ExpressionCompiler.new(self).compile(body))
+      compiler = ExpressionCompiler.new(self)
+      compiled_body = compiler.compile(body)
+
+      @blocks << ClassDefinitionToplevel.new(name, compiler.locals_used, compiled_body)
       name
     end
 
@@ -59,7 +62,9 @@ module RubyNative
         raise "don't know how to use #{args} for arguments to block"
       end
 
-      @blocks << (scoped ? ScopedBlockToplevel : BlockToplevel).new(name, arg_scopers, compiler.compile(body))
+      compiled_body = compiler.compile(body)
+
+      @blocks << (scoped ? ScopedBlockToplevel : BlockToplevel).new(name, arg_scopers, compiler.locals_used, compiled_body)
       name
     end
 
