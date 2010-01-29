@@ -142,8 +142,9 @@ module RubyNative
         args = []
       end
 
-      if args.length == 1
-        CallExpression.new('fast_funcall1', compile(target), @unit.compile__intern(method), *bulk_compile(args))
+      case args.length
+      when 0, 1, 2, 3
+        CallExpression.new("fast_funcall#{args.length}", compile(target), @unit.compile__intern(method), *bulk_compile(args))
       else
         CallExpression.new("rb_funcall", compile(target), @unit.compile__intern(method), args.length, bulk_compile(args))
       end

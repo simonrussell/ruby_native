@@ -183,6 +183,11 @@ static VALUE _local_defined(VALUE scope, VALUE name)
 
 #define RN_OPTIMIZE
 
+inline static VALUE fast_funcall0(VALUE target, ID method)
+{
+  return rb_funcall2(target, method, 0, NULL);
+}
+
 static VALUE fast_funcall1(VALUE target, ID method, VALUE arg)
 {
 #ifdef RN_OPTIMIZE
@@ -204,6 +209,20 @@ static VALUE fast_funcall1(VALUE target, ID method, VALUE arg)
 
   // just do the work  
   return rb_funcall2(target, method, 1, &arg);
+}
+
+inline static VALUE fast_funcall2(VALUE target, ID method, VALUE arg0, VALUE arg1)
+{
+  VALUE args[] = { arg0, arg1 };
+
+  return rb_funcall2(target, method, 2, args);
+}
+
+inline static VALUE fast_funcall3(VALUE target, ID method, VALUE arg0, VALUE arg1, VALUE arg2)
+{
+  VALUE args[] = { arg0, arg1, arg2 };
+
+  return rb_funcall2(target, method, 3, args);
 }
 
 EOC
