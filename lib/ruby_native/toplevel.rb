@@ -11,7 +11,7 @@ module RubyNative
     def locals_decl(locals_used)
       return '' if locals_used.empty?
     
-      "VALUE #{locals_used.map { |name, id| "*local_#{id} = _local_ptr(scope, SYM(#{id}, #{name.inspect}))" }.join(', ')};"
+      "/* locals used: #{locals_used.inspect} */\n  VALUE #{locals_used.map { |name, id| "*local_#{id} = _local_ptr(scope, SYM(#{id}, #{name.inspect}))" }.join(",\n    ")};"
     end
 
   end

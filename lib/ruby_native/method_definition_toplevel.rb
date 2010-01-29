@@ -17,7 +17,6 @@ module RubyNative
       end
 
 <<EOS
-/* locals used: #{@locals_used.inspect} */
 static VALUE #{@name}(#{arg_list.join(', ')}) 
 {
   DECLARE_NODE;
