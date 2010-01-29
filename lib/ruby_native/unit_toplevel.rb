@@ -78,12 +78,7 @@ module RubyNative
     end
 
     def to_s
-      "ID *_symbols;\n" +
-      "static void setup_symbols(void) {\n  _symbols = malloc(sizeof(ID) * #{@symbols.values.max + 1});\n#{
-        @symbols.map do |name, key|
-          "  _symbols[#{key}] = rb_intern(#{name.inspect});"
-        end.join("\n")
-      }\n}\n\n" + @blocks.join("\n")
+      setup_symbols_code + @blocks.join("\n")
     end
 
     def compile__intern(sym)
@@ -98,5 +93,17 @@ module RubyNative
       end
     end
 
+    private
+
+    def setup_symbols_code
+      return '' if @symbols.empty?
+
+      "ID *_symbols;\n" +
+      "static void setup_symbols(void) {\n  _symbols = malloc(sizeof(ID) * #{@symbols.values.max + 1});\n#{
+        @symbols.map do |name, key|
+          "  _symbols[#{key}] = rb_intern(#{name.inspect});"
+        end.join("\n")
+      }\n}\n\n"
+    end
   end
 end
