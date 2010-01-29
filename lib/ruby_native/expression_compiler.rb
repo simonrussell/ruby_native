@@ -266,6 +266,13 @@ module RubyNative
       )
     end
 
+    def compile_sclass(singleton, body)
+      CallExpression.new(
+        @unit.class_definition(body),
+        CallExpression.new('rb_singleton_class', compile(singleton))
+      )      
+    end
+
     def compile_defn(name, args, body)
       args = args.sexp_body
 
