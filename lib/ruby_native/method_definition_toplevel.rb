@@ -16,6 +16,14 @@ module RubyNative
         "VALUE #{a}"
       end
 
+      if @body.to_s == 'Qnil'   # lame
+<<EOS
+static VALUE #{@name}(#{arg_list.join(', ')}) 
+{
+  return Qnil;
+}
+EOS
+      else        
 <<EOS
 static VALUE #{@name}(#{arg_list.join(', ')}) 
 {
@@ -30,6 +38,7 @@ exit:
   return result;
 }
 EOS
+      end
     end
 
   end

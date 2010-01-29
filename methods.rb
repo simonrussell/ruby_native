@@ -12,6 +12,10 @@ def fib3(n)
   curr
 end
 
+def bm_fib3
+  fib3(100_000)
+end
+
 def fib4(n)
   curr = 0
   succ = 1
@@ -88,5 +92,17 @@ end
 
 def bm_tak
   tak(18, 9, 0)
+end
+
+
+def testmethod
+end
+
+def bm_method_call
+  i = 0
+  while i < 10_000_000
+    testmethod
+    i += 1
+  end
 end
 
