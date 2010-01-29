@@ -15,7 +15,19 @@ module RubyNative
         "VALUE #{a}"
       end
 
-      "static VALUE #{@name}(#{arg_list.join(', ')}) {\n  VALUE result, scope = _local_alloc(Qnil, self);\n  #{@args_scopers};\n  result = #{@body};\nexit:\n  return result;\n}\n"
+<<EOS
+static VALUE #{@name}(#{arg_list.join(', ')}) 
+{
+  DECLARE_NODE;
+  VALUE result, scope = _local_alloc(Qnil, self);
+  SHUFFLE_NODE(__FILE__, __LINE__);
+  #{@args_scopers};
+  result = #{@body};
+exit:
+  DESHUFFLE_NODE;
+  return result;
+}
+EOS
     end
 
   end

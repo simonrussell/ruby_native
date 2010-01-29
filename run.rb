@@ -49,6 +49,11 @@ code = %{
     return curr
   end
 
+  def blahmethod(x)
+    puts x
+    x > 10 ? 10.times { xyz } : blahmethod(x + 1)
+  end
+
   x, y, *z = [1,2,3,4]
   puts [x, y, z].inspect
 
@@ -59,6 +64,8 @@ code = %{
   { :a => :b, :c => :d }.each { |k, v| puts k.to_s + " => " + v.to_s }
 
   for x in %w(a b c); puts x; end
+
+#  blahmethod 0
 }
 
 parsed = RubyNative::Reader.from_string(code)
@@ -66,10 +73,19 @@ pp_sexp STDERR, parsed
 
 puts <<EOC
 #include <ruby.h>
+#include <node.h>
 
 #define TO_BOOL(x) ((x) ? Qtrue : Qfalse)
 #define SYM(key, name)  (_symbols[key])
 #define SELF_CLASS      (TYPE(self) == T_CLASS ? self : CLASS_OF(self))
+
+#define DECLARE_NODE        NODE *node, *old_node;
+#define SHUFFLE_NODE(f, l)  (node = NEW_NIL(), /*RNODE(node)->nd_file = (f), */nd_set_line(node, (l)), old_node = ruby_current_node, ruby_current_node = node)
+#define DESHUFFLE_NODE      (ruby_current_node = old_node)
+
+//#define DECLARE_NODE
+//#define SHUFFLE_NODE
+//#define DESHUFFLE_NODE
 
 static inline VALUE array_element(VALUE array, long index)
 {

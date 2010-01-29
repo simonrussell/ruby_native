@@ -10,7 +10,20 @@ module RubyNative
     end
 
     def to_s
-      "static VALUE #{@name}(VALUE arg, VALUE outer_scope) {\n  VALUE result, self = _local_self(outer_scope);\n  VALUE scope = _local_alloc(outer_scope, self);\n  #{@arg_scopers};\n  result = #{@body};\nexit:\n  return result;\n}\n"
+<<EOS
+static VALUE #{@name}(VALUE arg, VALUE outer_scope) 
+{
+  DECLARE_NODE;
+  VALUE result, self = _local_self(outer_scope);
+  VALUE scope = _local_alloc(outer_scope, self);
+  SHUFFLE_NODE(__FILE__, __LINE__),
+  #{@arg_scopers};
+  result = #{@body};
+exit:
+  DESHUFFLE_NODE;
+  return result;
+}
+EOS
     end
 
   end
