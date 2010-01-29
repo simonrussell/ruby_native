@@ -18,7 +18,7 @@ module RubyNative
 
     def declaration
       if @scoped
-        "*local_#{@id} = _local_ptr(scope, SYM(#{@id}, #{@name.inspect}))"
+        "*const local_#{@id} = _local_ptr(scope, SYM(#{@id}, #{@name.inspect}))"
       else
         "local_#{@id} = Qnil"
       end

@@ -11,8 +11,9 @@ module RubyNative
     def to_s
       # we have result var here, but we never actually return it ... lame
 <<EOS
-static VALUE #{@name}(VALUE self) {
-  VALUE result, #{@scope.declaration};
+static VALUE #{@name}(const VALUE self) {
+  VALUE result;
+  const VALUE #{@scope.declaration};
   #{locals_decl(@scope)}
   #{@body};
 exit:

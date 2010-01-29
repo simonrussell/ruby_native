@@ -12,11 +12,12 @@ module RubyNative
 
     def to_s
 <<EOS
-static VALUE #{@name}(VALUE arg, VALUE outer_scope) 
+static VALUE #{@name}(const VALUE arg, const VALUE outer_scope) 
 {
   DECLARE_NODE;
-  VALUE result, self = _local_self(outer_scope);
-  VALUE #{@scope.declaration};
+  VALUE result;
+  const VALUE self = _local_self(outer_scope);
+  const VALUE #{@scope.declaration};
   #{locals_decl(@scope)}
   SHUFFLE_NODE(__FILE__, __LINE__),
   #{@arg_scopers};

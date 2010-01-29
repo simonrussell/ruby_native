@@ -11,9 +11,10 @@ module RubyNative
 
     def to_s
 <<EOS
-static VALUE #{@name}(VALUE scope) 
+static VALUE #{@name}(const VALUE scope) 
 {
-  VALUE result, self = _local_self(scope);
+  VALUE result;
+  const VALUE self = _local_self(scope);
   #{locals_decl(@locals_used)}
   result = #{@body};
 exit:

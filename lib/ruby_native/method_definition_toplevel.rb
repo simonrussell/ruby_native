@@ -13,7 +13,7 @@ module RubyNative
 
     def to_s
       arg_list = (['self'] + @args).map do |a|
-        "VALUE #{a}"
+        "const VALUE #{a}"
       end
 
       if @body.to_s == 'Qnil'   # lame
@@ -28,7 +28,8 @@ EOS
 static VALUE #{@name}(#{arg_list.join(', ')}) 
 {
   DECLARE_NODE;
-  VALUE result, #{@scope.declaration};
+  VALUE result;
+  const VALUE #{@scope.declaration};
   #{locals_decl(@scope)}
   SHUFFLE_NODE(__FILE__, __LINE__);
   #{@args_scopers};
