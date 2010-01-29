@@ -77,6 +77,10 @@ module RubyNative
       name
     end
 
+    def comment(s)
+      @blocks << "/*\n#{s.gsub('*/', '* /')}\n*/\n"           # just in case
+    end
+
     def to_s
       setup_symbols_code + @blocks.join("\n")
     end

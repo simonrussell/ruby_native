@@ -230,13 +230,17 @@ module RubyNative
     def compile_lvar(name)
       use_local!(name)
 #      CallExpression.new('_local_get', 'scope', @unit.compile__intern(name))
-      SimpleExpression.new("(*local_#{@unit.symbol(name)})")
+      if name.to_s =~ /^!/
+        SimpleExpression.new("local_#{@unit.symbol(name)}")
+      else
+        SimpleExpression.new("(*local_#{@unit.symbol(name)})")
+      end
     end
 
     def compile_lasgn(name, value)
       use_local!(name)
 #      CallExpression.new('_local_set', 'scope', @unit.compile__intern(name), compile(value))
-      LocalSetExpression.new(@unit.symbol(name), compile(value))
+      make_local_set(name, compile(value))
     end
 
     def compile_masgn(assigns, expression)
@@ -288,7 +292,8 @@ module RubyNative
       raise "can't compile block arg" if args.any? { |a| a.to_s =~ /^&/ }
       raise "can't compile varargs yet" if args.any? { |a| a.to_s =~ /^\*/ }
       raise "can't compile default args yet" if args.last.is_a?(Sexp)
-
+ 
+      @unit.comment("DEFINE #{name}")
       GroupingExpression.new(
         CallExpression.new('rb_define_method', 
           SimpleExpression.new('SELF_CLASS'),
@@ -315,9 +320,9 @@ module RubyNative
 
           case assign.sexp_type
           when :lasgn
-            LocalSetExpression.new(@unit.symbol(use_local!(assign.sexp_body.first)), CallExpression.new('array_element', source, index))
+            make_local_set(assign.sexp_body.first, CallExpression.new('array_element', source, index))
           when :splat
-            LocalSetExpression.new(@unit.symbol(use_local!(assign.sexp_body.first.sexp_body.first)), CallExpression.new('array_tail', source, index))
+            make_local_set(assign.sexp_body.first.sexp_body.first, CallExpression.new('array_tail', source, index))
           else
             raise "don't know how to masgn #{assign}"
           end
@@ -341,6 +346,13 @@ module RubyNative
 
     def s(*args)
       Sexp.new(*args)
+    end
+
+    def make_local_set(name, value)
+      name = name.to_s
+
+      use_local!(name)
+      LocalSetExpression.new(@unit.symbol(name), name, value)
     end
 
     def use_local!(local)
