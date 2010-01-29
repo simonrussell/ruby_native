@@ -247,6 +247,11 @@ module RubyNative
         compile_lvar("!masgn")
       )
     end
+    
+    def transform_attrasgn(target, method, args)
+      s(:call, target, method, args)
+    end
+
 
     def compile_to_ary(expression)
       CallExpression.new('rb_ary_to_ary', compile(expression))
