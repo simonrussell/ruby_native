@@ -160,6 +160,10 @@ module RubyNative
       )
     end
 
+    def compile_yield(value = nil)
+      CallExpression.new('rb_yield', value ? compile(value) : SimpleExpression.new('Qundef'))
+    end
+
     # ranges
     def compile__range(first, last, exclude_end)
       CallExpression.new('rb_range_new', compile(first), compile(last), exclude_end ? 1 : 0)
