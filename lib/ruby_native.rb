@@ -1,18 +1,14 @@
 require 'rubygems'
 require 'ruby_parser'
 
-def puts_tabbed(io, tab, s)
-  if tab <= 0
-    io.puts s
-  else
-    io.puts "#{'.   ' * tab}#{s}"
-  end
+def puts_tabbed(io, tab, s, line = nil)
+  io.puts "#{line.to_s.ljust(5)}#{'.   ' * tab}#{s}"
 end
 
 def pp_sexp(io, sexp, tab = 0)
   return if sexp.nil?
 
-  puts_tabbed io, tab, "> #{sexp.sexp_type.to_s}      (line #{sexp.line})"
+  puts_tabbed io, tab, "> #{sexp.sexp_type.to_s}", sexp.line
   
   sexp.sexp_body.each do |b|
     if b.is_a?(Sexp)
