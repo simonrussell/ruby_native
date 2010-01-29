@@ -2,70 +2,14 @@
 require 'lib/ruby_native'
 
 code = %{
-  def compiled_fib(n)
-    n < 2 ? n : compiled_fib(n-1) + compiled_fib(n-2)
+puts "compiled self == " + self.inspect + ", " + self.class.inspect
+class Compiled
+  puts "compiled self == " + self.inspect
+  class << self
+    puts "compiled self == " + self.inspect
+    #{File.read('methods.rb')}
   end
-
-  def compiled_fib2(n)
-    curr = 0
-    succ = 1
-
-    i = 0
-    while i < n
-      n_curr = succ
-      n_succ = curr + succ
-      
-      curr = n_curr
-      succ = n_succ
-
-      i += 1
-    end
-
-    curr
-  end
-
-  def compiled_fib3(n)
-    curr = 0
-    succ = 1
-
-    i = 0
-    while i < n
-      curr, succ = succ, curr + succ
-
-      i += 1
-    end
-
-    curr
-  end
-
-  def compiled_fib4(n)
-    curr = 0
-    succ = 1
-
-    n.times do |i|
-      curr, succ = succ, curr + succ
-    end
-
-    return curr
-  end
-
-  def blahmethod(x)
-    puts x
-    x > 10 ? 10.times { xyz } : blahmethod(x + 1)
-  end
-
-  x, y, *z = [1,2,3,4]
-  puts [x, y, z].inspect
-
-  3.times { puts "yay!" }
-  
-  [1,2,3].each { |x| puts x, y }
-  puts x
-  { :a => :b, :c => :d }.each { |k, v| puts k.to_s + " => " + v.to_s }
-
-  for x in %w(a b c); puts x; end
-
-#  blahmethod 0
+end
 }
 
 parsed = RubyNative::Reader.from_string(code)
@@ -77,7 +21,7 @@ puts <<EOC
 
 #define TO_BOOL(x) ((x) ? Qtrue : Qfalse)
 #define SYM(key, name)  (_symbols[key])
-#define SELF_CLASS      (TYPE(self) == T_CLASS ? self : CLASS_OF(self))
+#define SELF_CLASS      (TYPE(self) == T_CLASS ? self : rb_funcall(self, rb_intern("class"), 0))
 
 #define DECLARE_NODE        NODE *node, *old_node;
 #define SHUFFLE_NODE(f, l)  (node = NEW_NIL(), /*RNODE(node)->nd_file = (f), */nd_set_line(node, (l)), old_node = ruby_current_node, ruby_current_node = node)
