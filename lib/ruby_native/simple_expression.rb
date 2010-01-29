@@ -6,7 +6,7 @@ module RubyNative
     end
 
     def to_s
-      @text
+      @text.to_s
     end
 
   end

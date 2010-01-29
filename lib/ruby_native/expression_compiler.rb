@@ -228,18 +228,10 @@ module RubyNative
 
     # local variables
     def compile_lvar(name)
-      use_local!(name)
-#      CallExpression.new('_local_get', 'scope', @unit.compile__intern(name))
-      if name.to_s =~ /^!/
-        SimpleExpression.new("local_#{@unit.symbol(name)}")
-      else
-        SimpleExpression.new("(*local_#{@unit.symbol(name)})")
-      end
+      SimpleExpression.new(local_variable(name))
     end
 
     def compile_lasgn(name, value)
-      use_local!(name)
-#      CallExpression.new('_local_set', 'scope', @unit.compile__intern(name), compile(value))
       make_local_set(name, compile(value))
     end
 
@@ -349,15 +341,13 @@ module RubyNative
     end
 
     def make_local_set(name, value)
-      name = name.to_s
-
-      use_local!(name)
-      LocalSetExpression.new(@unit.symbol(name), name, value)
+      LocalSetExpression.new(local_variable(name), value)
     end
 
-    def use_local!(local)
-      @locals_used[local.to_s] = @unit.symbol(local)
-      local
+    def local_variable(name)
+      name = name.to_s
+  
+      @locals_used[name] ||= LocalVariable.new(name, @unit.symbol(name))
     end
   end 
 end

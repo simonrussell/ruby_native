@@ -11,16 +11,9 @@ module RubyNative
     def locals_decl(locals_used)
       return '' if locals_used.empty?
 
-      locals_map = locals_used.map do |name, id|
-        case name
-        when /^!(.+)/
-          "local_#{id} = Qnil"
-        else
-          "*local_#{id} = _local_ptr(scope, SYM(#{id}, #{name.inspect}))"
-        end
-      end
+      locals_map = locals_used.map { |name, variable| variable.declaration }
 
-      "/* locals used: #{locals_used.inspect} */\n  VALUE #{locals_map.join(",\n    ")};"
+      "/* locals used: #{locals_used.map { |n, v| "#{n} = #{v.id}" }.join(', ')} */\n  VALUE #{locals_map.join(",\n    ")};"
     end
 
   end
