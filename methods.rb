@@ -80,6 +80,21 @@ def bm_nested_loop
   nested_loop(16)
 end
 
+def bm_nested_loop_novars
+  16.times do
+      16.times do
+          16.times do
+              16.times do
+                  16.times do
+                      16.times do
+                      end
+                  end
+              end
+          end
+      end
+  end
+end
+
 def tak(x, y, z)
   unless y < x
     z
