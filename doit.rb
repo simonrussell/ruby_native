@@ -21,13 +21,15 @@ if $? == 0
     if ARGV.first == 'bm'
       Mymodule.bootstrap(self)
 
+      bm = ARGV.last
+
       Benchmark.bmbm do |benchmark|
         benchmark.report 'interpreted' do
-          MULTIPLE.times { Interpreted.nested_loop(16) }
+          MULTIPLE.times { Interpreted.send("bm_#{bm}") }
         end
 
         benchmark.report 'compiled' do
-          MULTIPLE.times { Compiled.nested_loop(16) }
+          MULTIPLE.times { Compiled.send("bm_#{bm}") }
         end
       end
     else

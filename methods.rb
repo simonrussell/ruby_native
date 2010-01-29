@@ -50,7 +50,11 @@ def sieve
   count
 end
 
-def nested_loop(n = 16)
+def bm_sieve
+  sieve
+end
+
+def nested_loop(n)
   x = 0
   n.times do
       n.times do
@@ -68,4 +72,6 @@ def nested_loop(n = 16)
   x
 end
 
-
+def bm_nested_loop
+  nested_loop(16)
+end
