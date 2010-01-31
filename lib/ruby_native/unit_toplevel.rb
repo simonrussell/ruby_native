@@ -1,8 +1,6 @@
 module RubyNative
   class UnitToplevel < Toplevel
 
-    attr_accessor :file_scope_name    # TODO get rid of this crap
-
     def initialize
       @block_id = 0
       @blocks = []
@@ -21,6 +19,11 @@ module RubyNative
 
     def symbol(name)
       @symbols[name.to_s] ||= symbol_id!
+    end
+
+    def file(body)
+      # get rid of @file_scope_name
+      @file_scope_name = method_definition([], body)
     end
 
     def method_definition(args, body_expression)

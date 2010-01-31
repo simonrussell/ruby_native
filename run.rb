@@ -13,5 +13,5 @@ parsed = RubyNative::Reader.from_string(code)
 #pp_sexp STDERR, parsed
 
 unit = RubyNative::UnitToplevel.new
-unit.file_scope_name = unit.method_definition([], parsed)
+unit.file(parsed)
 puts unit
