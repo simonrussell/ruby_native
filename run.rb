@@ -7,12 +7,6 @@ class Compiled
     #{File.read('methods.rb')}
   end
 end
-
-def a(x)
-  yield x
-end
-
-puts (a("hello") { |z| puts z; "world" })
 }
 
 parsed = RubyNative::Reader.from_string(code)
