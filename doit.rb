@@ -19,7 +19,7 @@ if $? == 0
     require 'mymodule/mymodule'
 
     if ARGV.first == 'bm'
-      Mymodule.bootstrap(self)
+      Mymodule.send(Mymodule.methods.detect { |m| m =~ /^bootstrap_/ }, self)
 
       bm = ARGV.last
 
@@ -33,7 +33,8 @@ if $? == 0
         end
       end
     else
-      Mymodule.bootstrap(self)
+      Mymodule.send(Mymodule.methods.detect { |m| m =~ /^bootstrap_/ }, self)
+
       puts Compiled.fib4(40)
     end
   else

@@ -4,6 +4,7 @@ module RubyNative
     def initialize
       @block_id = 0
       @blocks = []
+      @bootstraps = []
 
       @symbol_id = -1
       @symbols = {}
@@ -22,8 +23,13 @@ module RubyNative
     end
 
     def file(body)
-      # get rid of @file_scope_name
-      @file_scope_name = method_definition([], body)
+      file_scope_name = method_definition([], body)
+      bootstrap_name = "bootstrap_#{block_id!}"
+
+      @blocks << BootstrapToplevel.new(bootstrap_name, file_scope_name)
+      @bootstraps << bootstrap_name
+
+      bootstrap_name
     end
 
     def method_definition(args, body_expression)
@@ -328,12 +334,9 @@ EOC
     end
 
     def unit_suffix_code
-<<EOC
-static VALUE bootstrap(VALUE self, VALUE real_self)
-{
-  return #{@file_scope_name}(real_self);
-}
+      bootstraps_code = @bootstraps.map { |b| "rb_define_module_function(module, #{b.inspect}, #{b}, 1);" }.join("\n")
 
+<<EOC
 void Init_mymodule(void)
 {
   VALUE module;
@@ -342,7 +345,7 @@ void Init_mymodule(void)
 
   module = rb_define_module("Mymodule");
 
-  rb_define_module_function(module, "bootstrap", bootstrap, 1);
+  #{bootstraps_code}
 }
 EOC
     end
