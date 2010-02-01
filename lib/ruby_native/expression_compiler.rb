@@ -15,7 +15,12 @@ module RubyNative
       return compile_nil if sexp.nil?
 
       sexp = send("transform_#{sexp.sexp_type}", *sexp.sexp_body) while respond_to?("transform_#{sexp.sexp_type}")
-      send("compile_#{sexp.sexp_type}", *sexp.sexp_body)
+
+      if respond_to?("compile_#{sexp.sexp_type}")
+        send("compile_#{sexp.sexp_type}", *sexp.sexp_body)
+      else
+        raise "don't know how to compile #{sexp} on line #{sexp.line} of `#{sexp.file}'"
+      end
     end
 
     def compile_c_literal(value)
@@ -90,8 +95,12 @@ module RubyNative
         SimpleExpression.new("rb_c#{name}")
 
       else
-        CallExpression.new('rb_const_get', CallExpression.new('CLASS_OF', compile_self), @unit.compile__intern(name))
+        CallExpression.new('rb_const_get', SimpleExpression.new('SELF_CLASS'), @unit.compile__intern(name))
       end
+    end
+
+    def compile_cdecl(name, value)
+      CallExpression.new('rb_const_set', SimpleExpression.new('SELF_CLASS'), @unit.compile__intern(name), compile(value))
     end
 
     def transform_hash(*keys_values)
@@ -104,6 +113,19 @@ module RubyNative
 
     def compile_gvar(name)
       CallExpression.new("rb_gv_get", name.to_s[1..-1].inspect)
+    end
+
+    def compile_ivar(name)
+      CallExpression.new('rb_ivar_get', 'self', @unit.compile__intern(name))
+    end
+
+    def compile_iasgn(name, value)
+      CallExpression.new('rb_ivar_set', 'self', @unit.compile__intern(name), compile(value))
+    end
+
+    def compile_colon2(target, name)
+      # TODO this should do a funcall if target is not a module or class
+      CallExpression.new('rb_const_get', compile(target), @unit.compile__intern(name))
     end
 
     def transform_dstr(first, *part_expressions)
@@ -255,6 +277,13 @@ module RubyNative
     end
 
     # definitions
+    def compile_module(name, body)
+      CallExpression.new(
+        @unit.class_definition(body),
+        CallExpression.new('rb_define_module_under', SimpleExpression.new('SELF_CLASS'), name.to_s.inspect)
+      )
+    end
+
     def compile_class(name, parent, body)
       parent ||= s(:const, :Object)
 
