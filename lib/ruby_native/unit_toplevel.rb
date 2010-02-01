@@ -89,6 +89,15 @@ module RubyNative
       name
     end
 
+    def rescue_handler(outer_scope, cases)
+      name = "rn_rescue_#{block_id!}"
+      compiler = ExpressionCompiler.new(self, outer_scope)
+      compiled_cases = compiler.compile(cases)
+
+      @blocks << RescueToplevel.new(name, compiler.scope, compiled_cases)
+      name
+    end
+
     def comment(s)
       @blocks << "/*\n#{s.gsub('*/', '* /')}\n*/\n"           # just in case
     end

@@ -319,6 +319,50 @@ module RubyNative
       )
     end
 
+    # exceptions
+
+    def compile_ensure(block_body, ensured_body)
+      CallExpression.new('rb_ensure',
+        @unit.block(@scope, nil, block_body, false),
+        'scope',
+        @unit.block(@scope, nil, ensured_body, false),
+        'scope'
+      )
+    end
+
+    def compile_rescue(*res_bodies)
+      block_body = (!res_bodies.empty? && res_bodies.first.sexp_type != :resbody && res_bodies.shift) || nil
+      else_body = (!res_bodies.empty? && res_bodies.last.sexp_type != :resbody && res_bodies.pop) || nil
+      raise "don't know how to compile rescue 'else' yet #{else_body}" if else_body
+
+      all_handled = []    # have to do it this way, because Sexps are arrays
+      res_bodies.each do |resbody| 
+        resbody.sexp_body.first << s(:const, :StandardError) if resbody.sexp_body.first.sexp_body.empty?    # default exception to handle
+        all_handled += resbody.sexp_body.first.sexp_body.select { |t| t.sexp_type == :const }
+      end
+
+      # build resbodies into a bunch of if statements
+
+      case_bodies = res_bodies.inject(nil) do |expression, resbody|
+        s(:if,
+          s(:nil),
+          resbody.sexp_body.last,
+          expression
+        )
+      end
+
+      GroupingExpression.new(
+        CallExpression.new('rb_rescue2',
+          @unit.block(@scope, nil, block_body, false),
+          'scope',
+          @unit.rescue_handler(@scope, case_bodies),
+          'scope',
+          bulk_compile(all_handled),
+          '(VALUE)0'
+        )
+      )
+    end
+
     private
 
     def check!(value, against)
