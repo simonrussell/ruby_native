@@ -18,7 +18,7 @@ end
 
 def compile_and_stub(unit, source_path, filename, dest_path)
   source_code = File.read(File.join(source_path, filename))
-  parsed = RubyNative::Reader.from_string(source_code)
+  parsed = RubyNative::Reader.from_string(source_code, File.expand_path(File.join(dest_path, filename)))
   file_function_name = unit.file(parsed)
 
   File.open(File.join(dest_path, filename), 'w') do |f|

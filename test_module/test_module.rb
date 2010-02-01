@@ -1,2 +1,4 @@
 puts __FILE__
-require 'test_module/lib/blah_blah'
+puts $0
+puts __LINE__
+require File.join(File.dirname(__FILE__), 'lib/blah_blah')
