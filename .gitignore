@@ -3,3 +3,4 @@ Makefile
 *.so
 mymodule.c
 test_module-native
+test_module/sinatra
