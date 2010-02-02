@@ -112,7 +112,13 @@ module RubyNative
     end
 
     def compile_array(*values)
-      CallExpression.new('rb_ary_new3', values.length, bulk_compile(values))
+      splat = remove_splat!(values)
+      
+      if splat
+        compile(s(:call, s(:const, :Array), :[], s(:arglist, s(:splat, splat))))
+      else
+        CallExpression.new('rb_ary_new3', values.length, bulk_compile(values))
+      end
     end
 
     def compile_gvar(name)
@@ -168,16 +174,22 @@ module RubyNative
 
       if args
         check_sexp!(args, :arglist)
-        args = args.sexp_body if args.sexp_type == :arglist
+        args = args.sexp_body
       else
         args = []
       end
 
-      case args.length
-      when 0, 1, 2, 3
-        CallExpression.new("fast_funcall#{args.length}", compile(target), @unit.compile__intern(method), *bulk_compile(args))
+      splat_arg = remove_splat!(args)
+
+      if splat_arg 
+        CallExpression.new('splat_funcall', compile(target), @unit.compile__intern(method), compile(splat_arg), args.length, *bulk_compile(args))
       else
-        CallExpression.new("rb_funcall", compile(target), @unit.compile__intern(method), args.length, bulk_compile(args))
+        case args.length
+        when 0, 1, 2, 3
+          CallExpression.new("fast_funcall#{args.length}", compile(target), @unit.compile__intern(method), *bulk_compile(args))
+        else
+          CallExpression.new("rb_funcall", compile(target), @unit.compile__intern(method), args.length, bulk_compile(args))
+        end
       end
     end
 
@@ -194,6 +206,10 @@ module RubyNative
 
     def compile_yield(value = nil)
       CallExpression.new('rb_yield', value ? compile(value) : SimpleExpression.new('Qundef'))
+    end
+
+    def compile_svalue(value)   # use for x = 1,2 ===> x = [1,2]
+      value
     end
 
     # ranges
@@ -436,5 +452,8 @@ module RubyNative
       LocalSetExpression.new(@scope.local_variable!(name), value)
     end
 
+    def remove_splat!(a)
+      a.last && a.last.sexp_type == :splat && a.pop.sexp_body.first || nil
+    end
   end 
 end
