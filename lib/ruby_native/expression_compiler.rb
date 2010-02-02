@@ -316,7 +316,11 @@ module RubyNative
       )      
     end
 
-    def compile_defn(name, args, body)
+    def transform_defn(name, args, body)
+      s(:defs, s(:c_literal, 'SELF_CLASS'), name, args, body)
+    end
+
+    def compile_defs(target, name, args, body)
       args = args.sexp_body
 
       raise "can't compile block arg" if args.any? { |a| a.to_s =~ /^&/ }
@@ -326,7 +330,7 @@ module RubyNative
       @unit.comment("DEFINE #{name}")
       GroupingExpression.new(
         CallExpression.new('rb_define_method', 
-          SimpleExpression.new('SELF_CLASS'),
+          compile(target),
           name.to_s.inspect,   # TODO escape properly
           @unit.method_definition(args, body),     # anonymous, because we don't actually know what class we're in, might be clashes
           args.length
