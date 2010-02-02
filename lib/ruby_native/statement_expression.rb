@@ -1,5 +1,5 @@
 module RubyNative
-  class StatementExpression
+  class StatementExpression < Expression
     
     def initialize(statement)
       @statement = statement
