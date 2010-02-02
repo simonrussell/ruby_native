@@ -71,6 +71,8 @@ module RubyNative
       case value
       when Fixnum
         SimpleExpression.new("LONG2FIX(#{value})")
+      when Float
+        CallExpression.new('rb_float_new', value)
       when String
         SimpleExpression.new("rb_str_new2(#{value.inspect})")
       when Symbol
@@ -80,7 +82,7 @@ module RubyNative
       when Regexp
         CallExpression.new("rb_reg_new", value.to_s.inspect, value.to_s.length, 0)
       else
-        raise "don't know how to compile literal #{value.inspect}"
+        raise "don't know how to compile literal #{value.inspect} (#{value.class})"
       end
     end
 
