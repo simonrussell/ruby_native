@@ -77,6 +77,8 @@ module RubyNative
         SimpleExpression.new("ID2SYM(#{@unit.compile__intern(value)})")
       when Range
         compile__range(s(:lit, value.first), s(:lit, value.last), value.exclude_end?)
+      when Regexp
+        CallExpression.new("rb_reg_new", value.to_s.inspect, value.to_s.length, 0)
       else
         raise "don't know how to compile literal #{value.inspect}"
       end
@@ -126,6 +128,14 @@ module RubyNative
     def compile_colon2(target, name)
       # TODO this should do a funcall if target is not a module or class
       CallExpression.new('rb_const_get', compile(target), @unit.compile__intern(name))
+    end
+
+    def transform_match2(target, value)     # optimization for =~
+      s(:call, target, :=~, s(:arglist, value))
+    end
+
+    def transform_match3(target, value)     # optimization for =~
+      s(:call, target, :=~, s(:arglist, value))
     end
 
     def transform_dstr(first, *part_expressions)
