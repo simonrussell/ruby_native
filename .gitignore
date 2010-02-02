@@ -4,3 +4,5 @@ Makefile
 mymodule.c
 test_module-native
 test_module/sinatra
+test_module/rubyspec
+
