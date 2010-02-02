@@ -214,7 +214,13 @@ module RubyNative
       CallExpression.new('rb_block_call', compile(target), @unit.compile__intern(:each), 0, 'NULL', @unit.block(@scope, blockargs, body, false), 'scope')
     end
 
+    def transform_break(x)
+      # TODO not implemented correctly
+      s(:return, x)
+    end
+
     def compile_return(x)
+      # TODO not implemented correctly
       StatementExpression.new(
         SequenceStatement.new(
           ReturnStatement.new(compile(x)),
